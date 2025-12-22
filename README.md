@@ -51,4 +51,6 @@ L'application utilise les technologies web les plus modernes :
 
 ---
 
+Ce projet est opensource alors n'hesitez pas à contribuer dans les exercices !
+
 *LudoÉduc — Parce que chaque enfant est un génie qui s'ignore !* ✨
