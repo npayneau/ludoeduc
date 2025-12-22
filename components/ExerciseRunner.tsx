@@ -3,7 +3,6 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask } from '../types';
 import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions } from '../data';
 import { CATEGORY_COLORS, CATEGORY_LABELS } from '../constants';
-import { GoogleGenAI, Modality } from "@google/genai";
 
 interface Props {
   level: Level;
@@ -235,71 +234,21 @@ const ConjugationExercise: React.FC<{ task: ConjugationTask, onValidate: (c: boo
 const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean) => void }> = ({ task, onValidate }) => {
   const [value, setValue] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
-  const audioContextRef = useRef<AudioContext | null>(null);
 
-  const playAudio = async () => {
+  const playAudio = () => {
     if (isPlaying) return;
-    setIsPlaying(true);
-    
-    try {
-      const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-      const prompt = `Prononce très clairement et doucement cette phrase pour une dictée de niveau ${task.level}, en marquant bien la fin : ${task.sentence}`;
-      
-      const response = await ai.models.generateContent({
-        model: "gemini-2.5-flash-preview-tts",
-        contents: [{ parts: [{ text: prompt }] }],
-        config: {
-          responseModalities: [Modality.AUDIO],
-          speechConfig: {
-            voiceConfig: {
-              prebuiltVoiceConfig: { voiceName: 'Kore' },
-            },
-          },
-        },
-      });
 
-      const base64Audio = response.candidates?.[0]?.content?.parts?.[0]?.inlineData?.data;
-      if (base64Audio) {
-        if (!audioContextRef.current) {
-          audioContextRef.current = new (window.AudioContext || (window as any).webkitAudioContext)({sampleRate: 24000});
-        }
-        const ctx = audioContextRef.current;
-        const audioBuffer = await decodeAudioData(decodeBase64(base64Audio), ctx, 24000, 1);
-        const source = ctx.createBufferSource();
-        source.buffer = audioBuffer;
-        source.connect(ctx.destination);
-        source.onended = () => setIsPlaying(false);
-        source.start();
-      } else {
-        setIsPlaying(false);
-      }
-    } catch (error) {
-      console.error("TTS Error:", error);
-      setIsPlaying(false);
-    }
-  };
+    // Utilisation de la synthèse vocale native (Web Speech API)
+    const utterance = new SpeechSynthesisUtterance(task.sentence);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.8; // Un peu plus lent pour une dictée
+    utterance.pitch = 1;
 
-  const decodeBase64 = (base64: string) => {
-    const binaryString = atob(base64);
-    const len = binaryString.length;
-    const bytes = new Uint8Array(len);
-    for (let i = 0; i < len; i++) {
-      bytes[i] = binaryString.charCodeAt(i);
-    }
-    return bytes;
-  };
+    utterance.onstart = () => setIsPlaying(true);
+    utterance.onend = () => setIsPlaying(false);
+    utterance.onerror = () => setIsPlaying(false);
 
-  const decodeAudioData = async (data: Uint8Array, ctx: AudioContext, sampleRate: number, numChannels: number): Promise<AudioBuffer> => {
-    const dataInt16 = new Int16Array(data.buffer);
-    const frameCount = dataInt16.length / numChannels;
-    const buffer = ctx.createBuffer(numChannels, frameCount, sampleRate);
-    for (let channel = 0; channel < numChannels; channel++) {
-      const channelData = buffer.getChannelData(channel);
-      for (let i = 0; i < frameCount; i++) {
-        channelData[i] = dataInt16[i * numChannels + channel] / 32768.0;
-      }
-    }
-    return buffer;
+    window.speechSynthesis.speak(utterance);
   };
 
   const check = () => {
@@ -311,7 +260,7 @@ const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean
 
   return (
     <div className="text-center">
-      <h3 className="text-2xl sm:text-3xl font-title mb-4 sm:mb-6 text-indigo-700">Dictée</h3>
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 sm:mb-6 text-indigo-700">Dictée Locale 🔊</h3>
       <div className="flex flex-col items-center gap-6 sm:gap-8">
         <button 
           onClick={playAudio} 
@@ -328,7 +277,7 @@ const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean
             <span className="text-5xl sm:text-7xl group-hover:scale-110 transition-transform">🎧</span>
           )}
         </button>
-        <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] sm:text-sm bg-indigo-50 px-4 py-2 rounded-full">Clique pour écouter</p>
+        <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] sm:text-sm bg-indigo-50 px-4 py-2 rounded-full">Clique pour écouter (Synthèse vocale locale)</p>
         
         <div className="w-full max-w-lg mt-2 sm:mt-4">
           <textarea

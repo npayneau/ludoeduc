@@ -1,5 +1,5 @@
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Level, MathType } from './types';
 import ExerciseRunner from './components/ExerciseRunner';
 
@@ -24,7 +24,7 @@ const App: React.FC = () => {
       setTotalQuestions(5);
     } else if (type === 'dictée') {
       setGameState('configuringDictation');
-      setTotalQuestions(2);
+      setTotalQuestions(3);
     } else {
       setGameState('playing');
       setTotalQuestions(5);
@@ -51,9 +51,43 @@ const App: React.FC = () => {
     setTotalQuestions(5);
   };
 
+  /**
+   * Composant Footer avec injection du script Buy Me a Coffee
+   */
+  const Footer = () => {
+    useEffect(() => {
+      const container = document.getElementById('bmc-container');
+      if (container && !container.hasChildNodes()) {
+        const script = document.createElement('script');
+        script.src = "https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js";
+        script.setAttribute('data-name', 'bmc-button');
+        script.setAttribute('data-slug', 'nicolaspayj');
+        script.setAttribute('data-color', '#40DCA5');
+        script.setAttribute('data-emoji', '🌭');
+        script.setAttribute('data-font', 'Cookie');
+        script.setAttribute('data-text', 'Acheté moi un hotdog');
+        script.setAttribute('data-outline-color', '#000000');
+        script.setAttribute('data-font-color', '#ffffff');
+        script.setAttribute('data-coffee-color', '#FFDD00');
+        script.async = true;
+        container.appendChild(script);
+      }
+    }, []);
+
+    return (
+      <footer className="mt-12 pb-12 text-center text-gray-400 text-xs sm:text-sm">
+        <p className="mb-4">Application développée par un passionné.</p>
+        <div className="flex flex-col items-center gap-4">
+          <span className="font-medium text-gray-500">Si vous souhaitez l'encourager, c'est ici : </span>
+<a href="https://www.buymeacoffee.com/nicolaspayj"><img src="https://img.buymeacoffee.com/button-api/?text=Achetez moi un hotdog&emoji=🌭&slug=nicolaspayj&button_colour=40DCA5&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /></a>
+        </div>
+      </footer>
+    );
+  };
+
   if (!level) {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-indigo-100 to-purple-100">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-gradient-to-br from-indigo-100 to-purple-100">
         <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-xl w-full text-center border-4 border-indigo-200">
           <h1 className="text-4xl sm:text-6xl font-title text-indigo-600 mb-4 sm:mb-6 drop-shadow-sm">LudoÉduc 🚀</h1>
           <p className="text-lg sm:text-xl text-gray-600 mb-8 sm:mb-10 font-medium italic">Choisis ton niveau pour commencer l'aventure !</p>
@@ -69,13 +103,14 @@ const App: React.FC = () => {
             ))}
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
 
   if (gameState === 'configuringMath' || gameState === 'configuringDictation') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-indigo-50">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-indigo-50">
         <div className={`bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full text-center border-b-[8px] sm:border-b-[12px] ${gameState === 'configuringMath' ? 'border-amber-200' : 'border-emerald-200'}`}>
           <h2 className={`text-3xl sm:text-4xl font-title mb-6 ${gameState === 'configuringMath' ? 'text-amber-600' : 'text-emerald-600'}`}>
             {gameState === 'configuringMath' ? 'Prépare ton défi ! 🔢' : 'Prépare ta dictée ! 📝'}
@@ -129,7 +164,7 @@ const App: React.FC = () => {
               Combien de {gameState === 'configuringMath' ? 'calculs' : 'phrases'} ?
             </p>
             <div className="flex flex-wrap justify-center gap-2 sm:gap-4">
-              {(gameState === 'configuringMath' ? [5, 10, 15, 20] : [1, 2, 3, 4]).map(count => (
+              {(gameState === 'configuringMath' ? [5, 10, 15, 20] : [1, 2, 3, 4, 5, 10]).map(count => (
                 <button
                   key={count}
                   onClick={() => setTotalQuestions(count)}
@@ -157,6 +192,7 @@ const App: React.FC = () => {
             </button>
           </div>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -204,7 +240,7 @@ const App: React.FC = () => {
 
   if (gameState === 'summary') {
     return (
-      <div className="min-h-screen flex items-center justify-center p-4 sm:p-6 bg-green-50">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
         <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-2xl text-center max-w-md w-full border-b-8 border-green-200">
           <div className="text-7xl sm:text-9xl mb-6">🏆</div>
           <h2 className="text-4xl sm:text-5xl font-title text-green-600 mb-4">Félicitations !</h2>
@@ -216,6 +252,7 @@ const App: React.FC = () => {
             Continuer
           </button>
         </div>
+        <Footer />
       </div>
     );
   }
@@ -278,8 +315,8 @@ const App: React.FC = () => {
               className="group relative p-6 sm:p-8 rounded-3xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all text-left"
             >
               <h3 className="text-xl sm:text-2xl font-bold text-emerald-700 mb-1 sm:mb-2">Dictée Interactive</h3>
-              <p className="text-sm sm:text-base text-emerald-600/70">Écoute les phrases et écris-les sans fautes.</p>
-              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all text-2xl">🎧</span>
+              <p className="text-sm sm:text-base text-emerald-600/70">Écoute les phrases et écris-les (local).</p>
+              <span className="hidden sm:block absolute right-6 bottom-6 text-2xl group-hover:scale-125 transition-all">🎧</span>
             </button>
           </div>
         </div>
@@ -346,6 +383,7 @@ const App: React.FC = () => {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 };
