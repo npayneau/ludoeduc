@@ -78,8 +78,10 @@ const App: React.FC = () => {
       <footer className="mt-12 pb-12 text-center text-gray-400 text-xs sm:text-sm">
         <p className="mb-4">Application développée par un passionné.</p>
         <div className="flex flex-col items-center gap-4">
-          <span className="font-medium text-gray-500">Si vous souhaitez l'encourager, c'est ici : </span>
-<a href="https://www.buymeacoffee.com/nicolaspayj"><img src="https://img.buymeacoffee.com/button-api/?text=Achetez moi un hotdog&emoji=🌭&slug=nicolaspayj&button_colour=40DCA5&font_colour=ffffff&font_family=Cookie&outline_colour=000000&coffee_colour=FFDD00" /></a>
+          <span className="font-medium text-gray-500">Si vous souhaitez l'encourager, c'est ici :</span>
+          <div id="bmc-container" className="flex justify-center min-h-[50px]">
+            {/* Le bouton sera injecté ici par le script */}
+          </div>
         </div>
       </footer>
     );
