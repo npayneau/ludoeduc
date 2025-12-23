@@ -76,11 +76,7 @@ const App: React.FC = () => {
 
     return (
       <footer className="mt-12 pb-12 text-center text-gray-400 text-xs sm:text-sm">
-        <p className="mb-4">Application développée par un passionné.</p>
-        <div className="flex flex-col items-center gap-4">
-          <span className="font-medium text-gray-500">Si vous souhaitez l'encourager, c'est ici :</span>
-          <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="nicolaspayj" data-description="Support me on Buy me a coffee!" data-message="Merci pour votre contribution !" data-color="#40DCA5" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
-        </div>
+        <p className="mb-4">Application développée par un papa passionné.</p>
       </footer>
     );
   };
