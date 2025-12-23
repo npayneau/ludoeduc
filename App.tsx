@@ -79,9 +79,7 @@ const App: React.FC = () => {
         <p className="mb-4">Application développée par un passionné.</p>
         <div className="flex flex-col items-center gap-4">
           <span className="font-medium text-gray-500">Si vous souhaitez l'encourager, c'est ici :</span>
-          <div id="bmc-container" className="flex justify-center min-h-[50px]">
-            {/* Le bouton sera injecté ici par le script */}
-          </div>
+          <script data-name="BMC-Widget" data-cfasync="false" src="https://cdnjs.buymeacoffee.com/1.0.0/widget.prod.min.js" data-id="nicolaspayj" data-description="Support me on Buy me a coffee!" data-message="Merci pour votre contribution !" data-color="#40DCA5" data-position="Right" data-x_margin="18" data-y_margin="18"></script>
         </div>
       </footer>
     );
