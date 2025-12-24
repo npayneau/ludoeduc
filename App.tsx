@@ -5,7 +5,7 @@ import ExerciseRunner from './components/ExerciseRunner';
 
 const App: React.FC = () => {
   const [level, setLevel] = useState<Level | null>(null);
-  const [subject, setSubject] = useState<'français' | 'maths' | null>(null);
+  const [subject, setSubject] = useState<'français' | 'maths' | 'autre' | null>(null);
   const [exerciseType, setExerciseType] = useState<string | null>(null);
   const [gameState, setGameState] = useState<'intro' | 'configuringMath' | 'configuringDictation' | 'playing' | 'summary'>('intro');
   const [lastScore, setLastScore] = useState(0);
@@ -14,7 +14,7 @@ const App: React.FC = () => {
   const [additionMax, setAdditionMax] = useState<number>(10);
   const [totalQuestions, setTotalQuestions] = useState(5);
 
-  const startExercise = (subj: 'français' | 'maths', type: string) => {
+  const startExercise = (subj: 'français' | 'maths' | 'autre', type: string) => {
     setSubject(subj);
     setExerciseType(type);
     if (type === 'multiplication' || type === 'addition') {
@@ -57,7 +57,7 @@ const App: React.FC = () => {
   const Footer = () => {
     return (
       <footer className="mt-12 pb-12 text-center text-gray-400 text-xs sm:text-sm">
-        <p className="mb-4">Application développée par un papa passionné.</p>
+        <p className="mb-4">❤️ Application développée par un papa passionné ❤️ </p>
       </footer>
     );
   };
@@ -368,6 +368,26 @@ const App: React.FC = () => {
                 <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">🔢</span>
               </div>
               <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Ranger les nombres</p>
+            </button>
+          </div>
+        </div>
+
+        {/* Autre Section */}
+        <div className="bg-white p-6 sm:p-10 rounded-[2.5rem] sm:rounded-[3rem] shadow-xl border-t-[8px] sm:border-t-[12px] border-purple-400 flex flex-col h-full lg:col-span-2">
+          <div className="flex items-center gap-4 sm:gap-6 mb-8 sm:mb-10">
+            <div className="bg-purple-100 w-12 h-12 sm:w-16 sm:h-16 rounded-2xl flex items-center justify-center text-2xl sm:text-3xl">🚀</div>
+            <h2 className="text-3xl sm:text-4xl font-title text-gray-800">Découverte</h2>
+          </div>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
+            <button
+              onClick={() => startExercise('autre', 'time')}
+              className="p-6 sm:p-10 rounded-3xl bg-purple-50 border-4 border-purple-100 hover:border-purple-400 hover:bg-purple-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px] sm:min-h-[160px]"
+            >
+              <div className="flex justify-between items-start">
+                <h3 className="font-bold text-purple-700 text-xl sm:text-2xl">L'Heure</h3>
+                <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">⏰</span>
+              </div>
+              <p className="text-sm sm:text-lg text-purple-600/70 font-medium">Apprendre à lire l'heure</p>
             </button>
           </div>
         </div>

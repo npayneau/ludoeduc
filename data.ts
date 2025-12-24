@@ -1,5 +1,5 @@
 
-import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask } from './types';
+import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, TimeTask } from './types';
 import { SENTENCE_DATABASE } from './database/sentences';
 import { VERB_DATABASE } from './database/verbs';
 import { MATH_DATABASE } from './database/math';
@@ -21,7 +21,7 @@ export const getGrammarQuestions = (level: Level, limit: number = 5): GrammarSen
 export const getConjugationQuestions = (level: Level, limit: number = 5): ConjugationTask[] => {
   const tenses: Tense[] = ["présent", "futur", "imparfait", "passé composé"];
   const persons = ["Je", "Tu", "Il", "Nous", "Vous", "Ils"];
-  
+
   const shuffledVerbs = [...VERB_DATABASE].sort(() => 0.5 - Math.random()).slice(0, limit);
 
   return shuffledVerbs.map((v, idx) => {
@@ -49,6 +49,40 @@ export const getDictationQuestions = (level: Level, limit: number = 5): Dictatio
 };
 
 /**
+ * Génère X exercices sur l'heure.
+ */
+export const getTimeQuestions = (level: Level, limit: number = 5): TimeTask[] => {
+  const questions: TimeTask[] = [];
+  const isAdvanced = level === 'CM1' || level === 'CM2';
+
+  for (let i = 0; i < limit; i++) {
+    const type = Math.random() > 0.5 ? 'read_time' : 'set_time';
+    let hour = Math.floor(Math.random() * 24);
+    let minute = 0;
+
+    if (isAdvanced) {
+      minute = Math.floor(Math.random() * 60);
+    } else {
+      // CE1/CE2: 00, 15, 30, 45
+      const quarters = [0, 15, 30, 45];
+      minute = quarters[Math.floor(Math.random() * quarters.length)];
+    }
+
+    const timeStr = `${hour.toString().padStart(2, '0')}:${minute.toString().padStart(2, '0')}`;
+
+    questions.push({
+      id: i,
+      type,
+      time: timeStr,
+      question: type === 'read_time' ? "Quelle heure est-il ?" : `Règle l'horloge sur ${timeStr.replace(':', 'h')}`,
+      level
+    });
+  }
+
+  return questions;
+};
+
+/**
  * Sélectionne X exercices de mathématiques par catégorie.
  */
 export const getMathQuestions = (level: Level, type: string, selectedTables?: number[], additionMax?: number, limit: number = 5): MathTask[] => {
@@ -59,7 +93,7 @@ export const getMathQuestions = (level: Level, type: string, selectedTables?: nu
       .slice(0, limit);
   }
 
-  let filtered = MATH_DATABASE.filter(m => m.type === type); 
+  let filtered = MATH_DATABASE.filter(m => m.type === type);
 
   if (type === 'multiplication' && selectedTables && selectedTables.length > 0) {
     filtered = filtered.filter(m => {

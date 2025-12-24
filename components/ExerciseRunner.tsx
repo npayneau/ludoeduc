@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask } from '../types';
-import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions } from '../data';
+import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, TimeTask } from '../types';
+import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getTimeQuestions } from '../data';
 import { CATEGORY_COLORS, CATEGORY_LABELS, TIMINGS } from '../constants';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -8,7 +8,7 @@ import { CSS } from '@dnd-kit/utilities';
 
 interface Props {
   level: Level;
-  subject: 'français' | 'maths';
+  subject: 'français' | 'maths' | 'autre';
   type: string;
   timerDuration?: number;
   selectedTables?: number[];
@@ -45,6 +45,8 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
       if (type === 'grammaire') q = getGrammarQuestions(level, totalQuestions);
       else if (type === 'conjugaison') q = getConjugationQuestions(level, totalQuestions);
       else if (type === 'dictée') q = getDictationQuestions(level, totalQuestions);
+    } else if (subject === 'autre') {
+      if (type === 'time') q = getTimeQuestions(level, totalQuestions);
     } else {
       q = getMathQuestions(level, type, selectedTables, additionMax, totalQuestions);
     }
@@ -159,7 +161,7 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
                     <span className="text-lg opacity-80 italic">soit {(current.correctAnswer as string).split(',').map((v, i) => parseInt(v) * Math.pow(10, 3 - i)).filter(v => v !== 0).join(' + ')}</span>
                   </div>
                 )
-                : String(current.correctAnswer || current.answer || current.sentence || '...')
+                : String(current.correctAnswer || current.answer || current.sentence || (current as TimeTask).time || '...')
               }
             </div>
           </div>
@@ -182,6 +184,12 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
         {type === 'dictée' && (
           <DictationExercise
             task={current as DictationTask}
+            onValidate={handleValidation}
+          />
+        )}
+        {type === 'time' && (
+          <TimeExercise
+            task={current as TimeTask}
             onValidate={handleValidation}
           />
         )}
@@ -567,6 +575,203 @@ const SortableItem: React.FC<{ id: number }> = ({ id }) => {
       className={`bg-white p-3 sm:p-8 text-xl sm:text-4xl font-title rounded-2xl sm:rounded-3xl border-2 sm:border-4 border-indigo-100 shadow-lg min-w-[60px] sm:min-w-[100px] truncate cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-50 scale-105 shadow-2xl ring-4 ring-indigo-300' : ''}`}
     >
       {id}
+    </div>
+  );
+};
+
+
+
+const TimeExercise: React.FC<{ task: TimeTask, onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [userHour, setUserHour] = useState(12);
+  const [userMinute, setUserMinute] = useState(0);
+  const [inputHour, setInputHour] = useState('');
+  const [inputMinute, setInputMinute] = useState('');
+
+  useEffect(() => {
+    // Reset state on new task
+    if (task.type === 'set_time') {
+      setUserHour(10);
+      setUserMinute(10);
+    } else {
+      setInputHour('');
+      setInputMinute('');
+    }
+  }, [task]);
+
+  const check = () => {
+    if (task.type === 'read_time') {
+      const h = parseInt(inputHour);
+      const m = parseInt(inputMinute);
+      const [targetH, targetM] = task.time.split(':').map(Number);
+
+      const isCorrect = h === targetH && m === targetM;
+      onValidate(isCorrect, `${inputHour}:${inputMinute}`);
+      if (!isCorrect) {
+        setInputHour('');
+        setInputMinute('');
+      }
+    } else {
+      const [targetH, targetM] = task.time.split(':').map(Number);
+      // Allow 12 to be 0 for hours if needed, but usually 0-23. 
+      // Clock visual is 12h. Task time is 24h string "14:30".
+      // We need to match visual position. 
+      // 14:30 -> visual 2:30. userHour 2, userMinute 30.
+
+      const targetH12 = targetH % 12 || 12;
+      const userH12 = userHour % 12 || 12;
+
+      const isCorrect = userH12 === targetH12 && userMinute === targetM;
+      onValidate(isCorrect, `${userHour}h${userMinute}`);
+    }
+  };
+
+  const adjustTime = (hDelta: number, mDelta: number) => {
+    let newM = userMinute + mDelta;
+    let newH = userHour + hDelta;
+
+    if (newM >= 60) {
+      newM -= 60;
+      newH += 1;
+    } else if (newM < 0) {
+      newM += 60;
+      newH -= 1;
+    }
+
+    if (newH > 12) newH = 1;
+    else if (newH < 1) newH = 12;
+
+    setUserHour(newH);
+    setUserMinute(newM);
+  };
+
+  // Clock rendering helpers
+  const getHandAngle = (value: number, total: number) => (value / total) * 360;
+  const hourAngle = getHandAngle(userHour % 12 + userMinute / 60, 12);
+  const minuteAngle = getHandAngle(userMinute, 60);
+
+  // For read_time, we show the task.time on the clock
+  const displayHour = task.type === 'read_time' ? parseInt(task.time.split(':')[0]) : userHour;
+  const displayMinute = task.type === 'read_time' ? parseInt(task.time.split(':')[1]) : userMinute;
+
+  const displayHourAngle = getHandAngle(displayHour % 12 + displayMinute / 60, 12);
+  const displayMinuteAngle = getHandAngle(displayMinute, 60);
+
+  return (
+    <div className="flex flex-col items-center gap-8">
+      <div className="relative w-64 h-64 sm:w-80 sm:h-80 mt-12">
+        {/* Period Indicator */}
+        <div className="absolute -right-4 -top-16 sm:-right-12 sm:-top-16 bg-white p-3 rounded-2xl shadow-lg border-4 border-indigo-100 flex flex-col items-center animate-bounce-slow z-20">
+          <span className="text-4xl sm:text-5xl">
+            {parseInt(task.time.split(':')[0]) < 12 ? '🌅' : '🌇'}
+          </span>
+          <span className="text-[10px] sm:text-xs font-bold text-indigo-400 uppercase tracking-wider mt-1">
+            {parseInt(task.time.split(':')[0]) < 12 ? 'Matin' : 'Après-midi'}
+          </span>
+        </div>
+
+        {/* Clock Face */}
+        <div className="absolute inset-0 rounded-full border-8 border-indigo-600 bg-white shadow-xl flex items-center justify-center">
+          {[...Array(12)].map((_, i) => {
+            const num = i + 1;
+            const angleDeg = (num * 30) - 90;
+            const angleRad = angleDeg * (Math.PI / 180);
+            const radius = 40; // 40% from center
+            const left = 50 + radius * Math.cos(angleRad);
+            const top = 50 + radius * Math.sin(angleRad);
+
+            return (
+              <div
+                key={i}
+                className="absolute font-bold text-gray-400 flex items-center justify-center w-8 h-8"
+                style={{
+                  left: `${left}%`,
+                  top: `${top}%`,
+                  transform: 'translate(-50%, -50%)',
+                  fontSize: '1.5rem'
+                }}
+              >
+                {num}
+              </div>
+            );
+          })}
+          {/* Center Dot */}
+          <div className="w-4 h-4 bg-indigo-800 rounded-full z-10"></div>
+
+          {/* Hour Hand */}
+
+          <div
+            className="absolute w-2 bg-pink-500 rounded-full origin-bottom transition-transform duration-500 ease-out"
+            style={{
+              height: '25%',
+              bottom: '50%',
+              transform: `rotate(${task.type === 'read_time' ? displayHourAngle : hourAngle}deg)`
+            }}
+          ></div>
+
+          {/* Minute Hand */}
+
+          <div
+            className="absolute w-1.5 bg-blue-500 rounded-full origin-bottom transition-transform duration-500 ease-out"
+            style={{
+              height: '35%',
+              bottom: '50%',
+              transform: `rotate(${task.type === 'read_time' ? displayMinuteAngle : minuteAngle}deg)`
+            }}
+          ></div>
+        </div>
+      </div>
+
+      {task.type === 'read_time' ? (
+        <div className="flex flex-col items-center gap-4 w-full max-w-xs">
+          <div className="flex items-center gap-2 justify-center bg-white p-2 rounded-3xl border-4 border-indigo-50 shadow-sm">
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={inputHour}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === '' || /^\d+$/.test(v)) setInputHour(v);
+              }}
+              placeholder="HH"
+              className="w-20 sm:w-24 text-center text-3xl sm:text-4xl p-3 sm:p-4 border-4 border-indigo-100 rounded-2xl font-bold focus:border-indigo-500 outline-none text-indigo-700 placeholder-indigo-200"
+              autoFocus
+            />
+            <span className="text-3xl sm:text-4xl font-bold text-indigo-300 pb-1">:</span>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              value={inputMinute}
+              onChange={(e) => {
+                const v = e.target.value;
+                if (v === '' || /^\d+$/.test(v)) setInputMinute(v);
+              }}
+              placeholder="MM"
+              className="w-20 sm:w-24 text-center text-3xl sm:text-4xl p-3 sm:p-4 border-4 border-indigo-100 rounded-2xl font-bold focus:border-indigo-500 outline-none text-indigo-700 placeholder-indigo-200"
+              onKeyDown={(e) => e.key === 'Enter' && check()}
+            />
+          </div>
+          <button onClick={check} className="w-full bg-indigo-600 text-white py-4 rounded-2xl text-xl font-bold shadow-lg hover:bg-indigo-700 transition-colors">Valider</button>
+        </div>
+      ) : (
+        <div className="flex flex-col items-center gap-6 w-full">
+          <div className="text-3xl sm:text-5xl font-title text-indigo-900 bg-white px-8 py-4 rounded-2xl shadow-sm border-2 border-indigo-100">
+            {task.time.replace(':', 'h')}
+          </div>
+          <div className="flex gap-4">
+            <div className="flex flex-col gap-2">
+              <button onClick={() => adjustTime(1, 0)} className="p-4 bg-pink-100 rounded-xl font-bold hover:bg-pink-200 transition-colors text-pink-700">H +</button>
+              <button onClick={() => adjustTime(-1, 0)} className="p-4 bg-pink-100 rounded-xl font-bold hover:bg-pink-200 transition-colors text-pink-700">H -</button>
+            </div>
+            <div className="flex flex-col gap-2">
+              <button onClick={() => adjustTime(0, 5)} className="p-4 bg-blue-100 rounded-xl font-bold hover:bg-blue-200 transition-colors text-blue-700">M +</button>
+              <button onClick={() => adjustTime(0, -5)} className="p-4 bg-blue-100 rounded-xl font-bold hover:bg-blue-200 transition-colors text-blue-700">M -</button>
+            </div>
+          </div>
+          <button onClick={check} className="w-full max-w-xs bg-indigo-600 text-white py-4 rounded-2xl text-xl font-bold shadow-lg">Valider</button>
+        </div>
+      )}
     </div>
   );
 };

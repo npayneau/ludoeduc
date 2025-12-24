@@ -47,3 +47,11 @@ export interface UserState {
   score: number;
   streak: number;
 }
+
+export interface TimeTask {
+  id: number;
+  type: 'read_time' | 'set_time';
+  time: string; // "14:30"
+  question: string;
+  level: Level;
+}
