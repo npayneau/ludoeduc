@@ -12,6 +12,8 @@ Destinée aux élèves du **CE1 au CM2**, cette plateforme offre un environnemen
 - **Interface Ludique :** Des polices rondes (Fredoka One), des couleurs vives et des animations pour garder l'enfant motivé.
 - **Dictée Locale :** Utilise la technologie **Web Speech API** intégrée à votre navigateur pour lire les phrases. Aucun besoin de connexion internet ou de clé API payante !
 - **Encouragements constants :** Chaque réussite déclenche un message aléatoire (ex: "Tu es un champion ! 🏆") pour booster la confiance en soi.
+- **Droit à l'erreur :** L'enfant dispose de 3 essais pour trouver la bonne réponse, avec un message d'encouragement pour l'aider à persévérer.
+- **Drag & Drop :** Glisser-déposer intuitif pour les exercices de tri et d'ordre croissant/décroissant (compatible mobile/tablette).
 - **Totalement Responsive :** Apprenez sur ordinateur, tablette ou smartphone avec un confort optimal.
 - **Soutien au projet :** Vous aimez l'app ? Vous pouvez offrir un hot-dog au développeur via le bouton en bas de page ! 🌭
 

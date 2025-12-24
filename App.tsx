@@ -32,7 +32,7 @@ const App: React.FC = () => {
   };
 
   const handleTableToggle = (num: number) => {
-    setSelectedTables(prev => 
+    setSelectedTables(prev =>
       prev.includes(num) ? prev.filter(n => n !== num) : [...prev, num]
     );
   };
@@ -55,25 +55,6 @@ const App: React.FC = () => {
    * Composant Footer avec injection du script Buy Me a Coffee
    */
   const Footer = () => {
-    useEffect(() => {
-      const container = document.getElementById('bmc-container');
-      if (container && !container.hasChildNodes()) {
-        const script = document.createElement('script');
-        script.src = "https://cdnjs.buymeacoffee.com/1.0.0/button.prod.min.js";
-        script.setAttribute('data-name', 'bmc-button');
-        script.setAttribute('data-slug', 'nicolaspayj');
-        script.setAttribute('data-color', '#40DCA5');
-        script.setAttribute('data-emoji', '🌭');
-        script.setAttribute('data-font', 'Cookie');
-        script.setAttribute('data-text', 'Acheté moi un hotdog');
-        script.setAttribute('data-outline-color', '#000000');
-        script.setAttribute('data-font-color', '#ffffff');
-        script.setAttribute('data-coffee-color', '#FFDD00');
-        script.async = true;
-        container.appendChild(script);
-      }
-    }, []);
-
     return (
       <footer className="mt-12 pb-12 text-center text-gray-400 text-xs sm:text-sm">
         <p className="mb-4">Application développée par un papa passionné.</p>
@@ -111,24 +92,23 @@ const App: React.FC = () => {
           <h2 className={`text-3xl sm:text-4xl font-title mb-6 ${gameState === 'configuringMath' ? 'text-amber-600' : 'text-emerald-600'}`}>
             {gameState === 'configuringMath' ? 'Prépare ton défi ! 🔢' : 'Prépare ta dictée ! 📝'}
           </h2>
-          
+
           {gameState === 'configuringMath' && (
             <div className="mb-8">
               <p className="text-gray-500 mb-4 font-bold uppercase tracking-wider text-xs sm:text-sm">
                 Étape 1 : {exerciseType === 'multiplication' ? 'Choisis tes tables' : "Choisis l'étendue des nombres"}
               </p>
-              
+
               {exerciseType === 'multiplication' ? (
                 <div className="grid grid-cols-5 gap-2 sm:gap-4 mb-6">
                   {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(num => (
                     <button
                       key={num}
                       onClick={() => handleTableToggle(num)}
-                      className={`w-10 h-10 sm:w-16 sm:h-16 rounded-full text-lg sm:text-2xl font-bold transition-all shadow-md transform hover:scale-110 active:scale-95 border-2 sm:border-4 ${
-                        selectedTables.includes(num) 
-                          ? 'bg-amber-500 text-white border-amber-600' 
-                          : 'bg-white text-amber-400 border-amber-100 hover:border-amber-300'
-                      }`}
+                      className={`w-10 h-10 sm:w-16 sm:h-16 rounded-full text-lg sm:text-2xl font-bold transition-all shadow-md transform hover:scale-110 active:scale-95 border-2 sm:border-4 ${selectedTables.includes(num)
+                        ? 'bg-amber-500 text-white border-amber-600'
+                        : 'bg-white text-amber-400 border-amber-100 hover:border-amber-300'
+                        }`}
                     >
                       {num}
                     </button>
@@ -140,11 +120,10 @@ const App: React.FC = () => {
                     <button
                       key={max}
                       onClick={() => setAdditionMax(max)}
-                      className={`flex-1 py-4 sm:py-6 px-4 rounded-3xl text-xl sm:text-2xl font-bold transition-all border-4 flex flex-col items-center justify-center gap-1 sm:gap-2 ${
-                        additionMax === max 
-                          ? 'bg-amber-500 text-white border-amber-600 scale-105 shadow-xl' 
-                          : 'bg-white text-amber-400 border-amber-100 hover:border-amber-300'
-                      }`}
+                      className={`flex-1 py-4 sm:py-6 px-4 rounded-3xl text-xl sm:text-2xl font-bold transition-all border-4 flex flex-col items-center justify-center gap-1 sm:gap-2 ${additionMax === max
+                        ? 'bg-amber-500 text-white border-amber-600 scale-105 shadow-xl'
+                        : 'bg-white text-amber-400 border-amber-100 hover:border-amber-300'
+                        }`}
                     >
                       <span className="text-[10px] sm:text-sm opacity-80 uppercase">Nombres de</span>
                       <span className="text-2xl sm:text-4xl">0 à {max}</span>
@@ -164,11 +143,10 @@ const App: React.FC = () => {
                 <button
                   key={count}
                   onClick={() => setTotalQuestions(count)}
-                  className={`flex-1 min-w-[60px] sm:flex-none sm:px-8 py-2 sm:py-3 rounded-2xl text-lg sm:text-xl font-bold transition-all ${
-                    totalQuestions === count
-                      ? `${gameState === 'configuringMath' ? 'bg-amber-600' : 'bg-emerald-600'} text-white shadow-lg scale-110`
-                      : `bg-white ${gameState === 'configuringMath' ? 'text-amber-600 border-amber-200 hover:bg-amber-100' : 'text-emerald-600 border-emerald-200 hover:bg-emerald-100'} border-2`
-                  }`}
+                  className={`flex-1 min-w-[60px] sm:flex-none sm:px-8 py-2 sm:py-3 rounded-2xl text-lg sm:text-xl font-bold transition-all ${totalQuestions === count
+                    ? `${gameState === 'configuringMath' ? 'bg-amber-600' : 'bg-emerald-600'} text-white shadow-lg scale-110`
+                    : `bg-white ${gameState === 'configuringMath' ? 'text-amber-600 border-amber-200 hover:bg-amber-100' : 'text-emerald-600 border-emerald-200 hover:bg-emerald-100'} border-2`
+                    }`}
                 >
                   {count}
                 </button>
@@ -178,11 +156,10 @@ const App: React.FC = () => {
 
           <div className="mt-6 sm:mt-10 pt-6 sm:pt-8 border-t-2 border-dashed border-gray-100 flex flex-col sm:flex-row gap-4">
             <button onClick={reset} className="flex-1 py-4 sm:py-5 rounded-2xl bg-white border-2 border-gray-200 text-lg sm:text-xl font-bold text-gray-400 hover:bg-gray-50 transition-all">Retour</button>
-            <button 
+            <button
               onClick={() => setGameState('playing')}
-              className={`flex-[2] py-4 sm:py-5 rounded-2xl text-xl sm:text-2xl font-bold shadow-lg transition-all transform hover:scale-105 active:scale-95 text-white ${
-                gameState === 'configuringMath' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'
-              }`}
+              className={`flex-[2] py-4 sm:py-5 rounded-2xl text-xl sm:text-2xl font-bold shadow-lg transition-all transform hover:scale-105 active:scale-95 text-white ${gameState === 'configuringMath' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'
+                }`}
             >
               C'est parti ! 🚀
             </button>
@@ -197,7 +174,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen p-4 sm:p-6 bg-indigo-50">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8 gap-4">
-          <button 
+          <button
             onClick={reset}
             className="text-indigo-600 font-bold flex items-center gap-2 bg-white sm:bg-transparent px-4 py-2 rounded-xl transition-all shadow-sm sm:shadow-none"
           >
@@ -211,7 +188,7 @@ const App: React.FC = () => {
             {exerciseType === 'multiplication' && (
               <div className="border-l pl-4">
                 <span className="text-gray-500">Tables : </span>
-                <span className="font-bold text-amber-600">{selectedTables.sort((a,b)=>a-b).join(', ')}</span>
+                <span className="font-bold text-amber-600">{selectedTables.sort((a, b) => a - b).join(', ')}</span>
               </div>
             )}
             <div className="border-l pl-4">
@@ -220,15 +197,15 @@ const App: React.FC = () => {
             </div>
           </div>
         </div>
-        <ExerciseRunner 
-          level={level} 
-          subject={subject} 
-          type={exerciseType} 
+        <ExerciseRunner
+          level={level}
+          subject={subject}
+          type={exerciseType}
           timerDuration={timerDuration}
           selectedTables={selectedTables}
           additionMax={additionMax}
           totalQuestions={totalQuestions}
-          onFinish={handleFinish} 
+          onFinish={handleFinish}
         />
       </div>
     );
@@ -241,7 +218,7 @@ const App: React.FC = () => {
           <div className="text-7xl sm:text-9xl mb-6">🏆</div>
           <h2 className="text-4xl sm:text-5xl font-title text-green-600 mb-4">Félicitations !</h2>
           <p className="text-xl sm:text-2xl text-gray-600 mb-8">Tu as obtenu <span className="text-3xl sm:text-4xl font-bold text-green-500">{lastScore} / {totalQuestions}</span> bonnes réponses !</p>
-          <button 
+          <button
             onClick={reset}
             className="w-full bg-green-500 text-white py-5 sm:py-6 rounded-2xl text-xl sm:text-2xl font-bold hover:bg-green-600 transition-all shadow-lg active:scale-95"
           >
@@ -263,13 +240,29 @@ const App: React.FC = () => {
         <div className="flex flex-col sm:flex-row flex-wrap justify-center gap-3 sm:gap-4 w-full lg:w-auto">
           <div className="bg-white px-4 py-2 sm:px-6 sm:py-3 rounded-2xl shadow-sm border-2 border-indigo-100 flex flex-col items-center flex-1 sm:flex-none">
             <span className="text-gray-400 font-bold uppercase text-[9px] sm:text-[10px] block leading-tight">Chrono (secondes)</span>
-            <input 
-              type="number" 
-              min="1" 
-              max="60" 
-              value={timerDuration} 
+            <div className="relative block sm:hidden w-full">
+              <select
+                value={timerDuration}
+                onChange={(e) => setTimerDuration(parseInt(e.target.value))}
+                className="w-full appearance-none bg-indigo-50 border-2 border-indigo-200 text-indigo-700 font-bold py-2 px-4 pr-8 rounded-xl focus:outline-none focus:border-indigo-500 text-center text-lg"
+              >
+                {[4, 5, 6, 7, 8, 9, 10].map(v => (
+                  <option key={v} value={v}>{v}s</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-indigo-600">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
+            </div>
+            <input
+              type="number"
+              min="1"
+              max="60"
+              value={timerDuration}
               onChange={(e) => setTimerDuration(parseInt(e.target.value) || 4)}
-              className="w-full sm:w-16 text-center text-lg sm:text-xl font-bold text-indigo-600 focus:outline-none"
+              className="hidden sm:block w-full sm:w-16 text-center text-lg sm:text-xl font-bold text-indigo-600 focus:outline-none"
             />
           </div>
           <div className="bg-white px-4 py-2 sm:px-6 sm:py-3 rounded-2xl shadow-sm border-2 border-indigo-100 flex flex-col items-center flex-1 sm:flex-none">
@@ -290,7 +283,7 @@ const App: React.FC = () => {
             <h2 className="text-3xl sm:text-4xl font-title text-gray-800">Français</h2>
           </div>
           <div className="grid gap-4 sm:gap-6">
-            <button 
+            <button
               onClick={() => startExercise('français', 'grammaire')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all text-left"
             >
@@ -298,7 +291,7 @@ const App: React.FC = () => {
               <p className="text-sm sm:text-base text-emerald-600/70">Identifie les classes grammaticales.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all text-2xl">🖍️</span>
             </button>
-            <button 
+            <button
               onClick={() => startExercise('français', 'conjugaison')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all text-left"
             >
@@ -306,7 +299,7 @@ const App: React.FC = () => {
               <p className="text-sm sm:text-base text-emerald-600/70">Conjugue les verbes aux temps demandés.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all text-2xl">✍️</span>
             </button>
-            <button 
+            <button
               onClick={() => startExercise('français', 'dictée')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all text-left"
             >
@@ -325,48 +318,48 @@ const App: React.FC = () => {
           </div>
           <div className="grid grid-cols-1 gap-4 sm:gap-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
-                <button 
-                  onClick={() => startExercise('maths', 'multiplication')}
-                  className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px] sm:min-h-[160px]"
-                >
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Tables</h3>
-                    <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">✖️</span>
-                  </div>
-                  <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Multiplications</p>
-                </button>
-                <button 
-                  onClick={() => startExercise('maths', 'addition')}
-                  className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px] sm:min-h-[160px]"
-                >
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Additions</h3>
-                    <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">➕</span>
-                  </div>
-                  <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Calcul mental</p>
-                </button>
-                <button 
-                  onClick={() => startExercise('maths', 'decomposition')}
-                  className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px] sm:min-h-[160px]"
-                >
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Décompo.</h3>
-                    <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">📦</span>
-                  </div>
-                  <p className="text-sm sm:text-lg text-amber-600/70 font-medium">M - C - D - U</p>
-                </button>
-                <button 
-                  onClick={() => startExercise('maths', 'problem')}
-                  className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px] sm:min-h-[160px]"
-                >
-                  <div className="flex justify-between items-start">
-                    <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Problèmes</h3>
-                    <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">🤔</span>
-                  </div>
-                  <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Réflexion</p>
-                </button>
+              <button
+                onClick={() => startExercise('maths', 'multiplication')}
+                className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px] sm:min-h-[160px]"
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Tables</h3>
+                  <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">✖️</span>
+                </div>
+                <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Multiplications</p>
+              </button>
+              <button
+                onClick={() => startExercise('maths', 'addition')}
+                className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px] sm:min-h-[160px]"
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Additions</h3>
+                  <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">➕</span>
+                </div>
+                <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Calcul mental</p>
+              </button>
+              <button
+                onClick={() => startExercise('maths', 'decomposition')}
+                className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px] sm:min-h-[160px]"
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Décompo.</h3>
+                  <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">📦</span>
+                </div>
+                <p className="text-sm sm:text-lg text-amber-600/70 font-medium">M - C - D - U</p>
+              </button>
+              <button
+                onClick={() => startExercise('maths', 'problem')}
+                className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px] sm:min-h-[160px]"
+              >
+                <div className="flex justify-between items-start">
+                  <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Problèmes</h3>
+                  <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">🤔</span>
+                </div>
+                <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Réflexion</p>
+              </button>
             </div>
-            <button 
+            <button
               onClick={() => startExercise('maths', 'ordering')}
               className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[100px] sm:min-h-[140px] w-full"
             >

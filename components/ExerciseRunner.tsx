@@ -1,8 +1,10 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask } from '../types';
 import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions } from '../data';
-import { CATEGORY_COLORS, CATEGORY_LABELS } from '../constants';
+import { CATEGORY_COLORS, CATEGORY_LABELS, TIMINGS } from '../constants';
+import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 interface Props {
   level: Level;
@@ -18,22 +20,24 @@ interface Props {
 const ENCOURAGEMENTS = [
   "Bravo ! 🎉",
   "Génial ! 🌟",
-  "Tu es un champion ! 🏆",
+  "Tu es un incroyable ! 🏆",
   "Magnifique ! ✨",
   "Super travail ! 👍",
   "Impressionnant ! 🚀",
   "Quelle intelligence ! 🧠",
   "Continue comme ça ! 💪",
   "C'est parfait ! ✅",
-  "Incroyable ! 🌈"
+  "Toppisime ! 🌈"
 ];
 
 const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration = 4, selectedTables, additionMax, totalQuestions = 5, onFinish }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [questions, setQuestions] = useState<any[]>([]);
   const [score, setScore] = useState(0);
-  const [showFeedback, setShowFeedback] = useState<'correct' | 'wrong' | null>(null);
+  const [showFeedback, setShowFeedback] = useState<'correct' | 'wrong' | 'retry' | null>(null);
   const [currentEncouragement, setCurrentEncouragement] = useState("");
+  const [wrongAttempts, setWrongAttempts] = useState(0);
+  const [wrongValue, setWrongValue] = useState<string | undefined>(undefined);
 
   useEffect(() => {
     let q: any[] = [];
@@ -47,25 +51,48 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
     setQuestions(q);
     setCurrentIdx(0);
     setScore(0);
+    setWrongAttempts(0);
+    setWrongValue(undefined);
   }, [level, subject, type, selectedTables, additionMax, totalQuestions]);
 
-  const handleValidation = (isCorrect: boolean) => {
+  const handleValidation = (isCorrect: boolean, value?: string) => {
     if (isCorrect) {
       setScore(s => s + 1);
       setCurrentEncouragement(ENCOURAGEMENTS[Math.floor(Math.random() * ENCOURAGEMENTS.length)]);
       setShowFeedback('correct');
-    } else {
-      setShowFeedback('wrong');
-    }
 
-    setTimeout(() => {
-      setShowFeedback(null);
-      if (currentIdx < questions.length - 1) {
-        setCurrentIdx(i => i + 1);
+      setTimeout(() => {
+        setShowFeedback(null);
+        setWrongAttempts(0);
+        if (currentIdx < questions.length - 1) {
+          setCurrentIdx(i => i + 1);
+        } else {
+          onFinish(score + 1);
+        }
+      }, TIMINGS.FEEDBACK_CORRECT);
+    } else {
+      const newAttempts = wrongAttempts + 1;
+      setWrongAttempts(newAttempts);
+      setWrongValue(value);
+
+      if (newAttempts < 3) {
+        setShowFeedback('retry');
+        setTimeout(() => {
+          setShowFeedback(null);
+        }, TIMINGS.FEEDBACK_RETRY);
       } else {
-        onFinish(score + (isCorrect ? 1 : 0));
+        setShowFeedback('wrong');
+        setTimeout(() => {
+          setShowFeedback(null);
+          setWrongAttempts(0);
+          if (currentIdx < questions.length - 1) {
+            setCurrentIdx(i => i + 1);
+          } else {
+            onFinish(score);
+          }
+        }, subject === 'français' ? TIMINGS.FEEDBACK_WRONG_FRENCH : TIMINGS.FEEDBACK_WRONG_MATH);
       }
-    }, 1800);
+    }
   };
 
   if (questions.length === 0) return (
@@ -83,12 +110,23 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
       <div className="flex justify-between items-center mb-6">
         <span className="text-indigo-400 font-bold uppercase tracking-wider text-[10px] sm:text-sm">Q. {currentIdx + 1} / {questions.length}</span>
         <div className="w-32 sm:w-48 bg-gray-100 h-2 sm:h-3 rounded-full overflow-hidden border border-gray-200">
-          <div 
+          <div
             className="bg-gradient-to-r from-indigo-400 to-indigo-600 h-full transition-all duration-700"
             style={{ width: `${((currentIdx + 1) / questions.length) * 100}%` }}
           ></div>
         </div>
       </div>
+
+      {showFeedback === 'retry' && (
+        <div className="absolute inset-0 z-50 flex items-center justify-center bg-orange-500/95 text-white p-4">
+          <div className="text-center animate-pulse">
+            <span className="text-7xl sm:text-9xl">🤔</span>
+            <h2 className="text-3xl sm:text-5xl font-title mt-6">
+              {wrongValue ? <>{wrongValue} est incorrect,<br />essaie encore !</> : "C'est incorrect, essaie encore !"}
+            </h2>
+          </div>
+        </div>
+      )}
 
       {showFeedback === 'correct' && (
         <div className="absolute inset-0 z-50 flex items-center justify-center bg-green-500/95 text-white p-4">
@@ -106,14 +144,22 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
             <h2 className="text-3xl sm:text-4xl font-bold mt-6">Oups !</h2>
             <p className="mt-4 text-xl sm:text-2xl opacity-90">La réponse était :</p>
             <div className="bg-white/20 p-4 sm:p-6 rounded-2xl mt-4 text-xl sm:text-2xl font-bold border-2 border-white/30 leading-relaxed break-words">
-              {type === 'decomposition' 
+              {type === 'grammaire' ? (
+                <div className="flex flex-wrap justify-center gap-2">
+                  {(current as GrammarSentence).parts.map((p, i) => (
+                    <span key={i} className={`px-2 py-1 rounded-lg border-2 ${CATEGORY_COLORS[p.category]}`}>
+                      {p.text}
+                    </span>
+                  ))}
+                </div>
+              ) : type === 'decomposition'
                 ? (
                   <div className="flex flex-col gap-2">
-                    <span>{(current.correctAnswer as string).split(',').map((v, i) => v !== '0' ? `${v} ${['M','C','D','U'][i]}` : '').filter(s => s !== '').join(' ')}</span>
-                    <span className="text-lg opacity-80 italic">soit {(current.correctAnswer as string).split(',').map((v, i) => parseInt(v) * Math.pow(10, 3-i)).filter(v => v !== 0).join(' + ')}</span>
+                    <span>{(current.correctAnswer as string).split(',').map((v, i) => v !== '0' ? `${v} ${['M', 'C', 'D', 'U'][i]}` : '').filter(s => s !== '').join(' ')}</span>
+                    <span className="text-lg opacity-80 italic">soit {(current.correctAnswer as string).split(',').map((v, i) => parseInt(v) * Math.pow(10, 3 - i)).filter(v => v !== 0).join(' + ')}</span>
                   </div>
                 )
-                : String(current.correctAnswer || current.answer || current.sentence || '...') 
+                : String(current.correctAnswer || current.answer || current.sentence || '...')
               }
             </div>
           </div>
@@ -122,28 +168,28 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
 
       <div className="py-2 sm:py-4">
         {type === 'grammaire' && (
-          <GrammarExercise 
-            sentence={current as GrammarSentence} 
-            onValidate={handleValidation} 
+          <GrammarExercise
+            sentence={current as GrammarSentence}
+            onValidate={handleValidation}
           />
         )}
         {type === 'conjugaison' && (
-          <ConjugationExercise 
-            task={current as ConjugationTask} 
-            onValidate={handleValidation} 
+          <ConjugationExercise
+            task={current as ConjugationTask}
+            onValidate={handleValidation}
           />
         )}
         {type === 'dictée' && (
-          <DictationExercise 
-            task={current as DictationTask} 
-            onValidate={handleValidation} 
+          <DictationExercise
+            task={current as DictationTask}
+            onValidate={handleValidation}
           />
         )}
         {subject === 'maths' && (
-          <MathDisplay 
-            task={current as MathTask} 
+          <MathDisplay
+            task={current as MathTask}
             timerDuration={timerDuration}
-            onValidate={handleValidation} 
+            onValidate={handleValidation}
           />
         )}
       </div>
@@ -151,7 +197,7 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
   );
 };
 
-const GrammarExercise: React.FC<{ sentence: GrammarSentence, onValidate: (c: boolean) => void }> = ({ sentence, onValidate }) => {
+const GrammarExercise: React.FC<{ sentence: GrammarSentence, onValidate: (c: boolean, v?: string) => void }> = ({ sentence, onValidate }) => {
   const [selectedCategory, setSelectedCategory] = useState<any>('nom');
   const [userColors, setUserColors] = useState<Record<number, any>>({});
 
@@ -199,10 +245,10 @@ const GrammarExercise: React.FC<{ sentence: GrammarSentence, onValidate: (c: boo
   );
 };
 
-const ConjugationExercise: React.FC<{ task: ConjugationTask, onValidate: (c: boolean) => void }> = ({ task, onValidate }) => {
+const ConjugationExercise: React.FC<{ task: ConjugationTask, onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
   const [value, setValue] = useState('');
   const check = () => {
-    onValidate(value.trim().toLowerCase() === task.answer.toLowerCase());
+    onValidate(value.trim().toLowerCase() === task.answer.toLowerCase(), value);
     setValue('');
   };
   return (
@@ -231,7 +277,7 @@ const ConjugationExercise: React.FC<{ task: ConjugationTask, onValidate: (c: boo
   );
 };
 
-const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean) => void }> = ({ task, onValidate }) => {
+const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
   const [value, setValue] = useState('');
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -254,7 +300,7 @@ const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean
   const check = () => {
     const normalizedUser = value.trim().toLowerCase().replace(/[.!?]$/, '');
     const normalizedTarget = task.sentence.trim().toLowerCase().replace(/[.!?]$/, '');
-    onValidate(normalizedUser === normalizedTarget);
+    onValidate(normalizedUser === normalizedTarget, value);
     setValue('');
   };
 
@@ -262,8 +308,8 @@ const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean
     <div className="text-center">
       <h3 className="text-2xl sm:text-3xl font-title mb-4 sm:mb-6 text-indigo-700">Dictée Locale 🔊</h3>
       <div className="flex flex-col items-center gap-6 sm:gap-8">
-        <button 
-          onClick={playAudio} 
+        <button
+          onClick={playAudio}
           disabled={isPlaying}
           className={`group flex items-center justify-center gap-4 w-32 h-32 sm:w-48 sm:h-48 rounded-full border-4 sm:border-8 transition-all ${isPlaying ? 'bg-indigo-100 border-indigo-200' : 'bg-white border-indigo-500 hover:scale-105 shadow-xl animate-pulse'}`}
         >
@@ -278,7 +324,7 @@ const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean
           )}
         </button>
         <p className="text-gray-500 font-bold uppercase tracking-widest text-[10px] sm:text-sm bg-indigo-50 px-4 py-2 rounded-full">Clique pour écouter (Synthèse vocale locale)</p>
-        
+
         <div className="w-full max-w-lg mt-2 sm:mt-4">
           <textarea
             value={value}
@@ -288,9 +334,9 @@ const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean
             autoFocus
           />
         </div>
-        
-        <button 
-          onClick={check} 
+
+        <button
+          onClick={check}
           disabled={!value.trim()}
           className={`w-full sm:w-auto px-10 sm:px-20 py-4 sm:py-6 rounded-2xl sm:rounded-3xl text-xl sm:text-2xl font-bold shadow-xl transition-all ${value.trim() ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}
         >
@@ -301,14 +347,27 @@ const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean
   );
 };
 
-const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate: (c: boolean) => void }> = ({ task, timerDuration, onValidate }) => {
+
+
+const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate: (c: boolean, v?: string) => void }> = ({ task, timerDuration, onValidate }) => {
   const [value, setValue] = useState('');
-  const [decompValues, setDecompValues] = useState<Record<string, string>>({M: '', C: '', D: '', U: ''});
-  const [additiveValues, setAdditiveValues] = useState<Record<string, string>>({M: '', C: '', D: '', U: ''});
+  const [decompValues, setDecompValues] = useState<Record<string, string>>({ M: '', C: '', D: '', U: '' });
+  const [additiveValues, setAdditiveValues] = useState<Record<string, string>>({ M: '', C: '', D: '', U: '' });
   const [orderItems, setOrderItems] = useState<number[]>([]);
   const [progress, setProgress] = useState(0);
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
+
+  const sensors = useSensors(
+    useSensor(PointerSensor, {
+      activationConstraint: {
+        distance: 8,
+      },
+    }),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
 
   const isTimed = task.type === 'addition' || task.type === 'multiplication';
   const isProblem = task.type === 'problem';
@@ -317,8 +376,8 @@ const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate:
   useEffect(() => {
     if (task.type === 'ordering' && task.options) setOrderItems(task.options as number[]);
     setValue('');
-    setDecompValues({M: '', C: '', D: '', U: ''});
-    setAdditiveValues({M: '', C: '', D: '', U: ''});
+    setDecompValues({ M: '', C: '', D: '', U: '' });
+    setAdditiveValues({ M: '', C: '', D: '', U: '' });
     setProgress(0);
 
     if (isTimed) {
@@ -340,20 +399,33 @@ const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate:
     if (timerRef.current) cancelAnimationFrame(timerRef.current);
     if (task.type === 'ordering') onValidate(orderItems.join(',') === task.correctAnswer);
     else if (isDecomp) {
-        const expected = (task.correctAnswer as string).split(',');
-        const [m, c, d, u] = expected;
-        const userTableCorrect = (decompValues.M || '0') === m && (decompValues.C || '0') === c && (decompValues.D || '0') === d && (decompValues.U || '0') === u;
-        const userAdditiveCorrect = (parseInt(additiveValues.M) || 0) === (parseInt(m) * 1000) && (parseInt(additiveValues.C) || 0) === (parseInt(c) * 100) && (parseInt(additiveValues.D) || 0) === (parseInt(d) * 10) && (parseInt(additiveValues.U) || 0) === (parseInt(u));
-        onValidate(userTableCorrect && userAdditiveCorrect);
+      const expected = (task.correctAnswer as string).split(',');
+      const [m, c, d, u] = expected;
+      const userTableCorrect = (decompValues.M || '0') === m && (decompValues.C || '0') === c && (decompValues.D || '0') === d && (decompValues.U || '0') === u;
+      const userAdditiveCorrect = (parseInt(additiveValues.M) || 0) === (parseInt(m) * 1000) && (parseInt(additiveValues.C) || 0) === (parseInt(c) * 100) && (parseInt(additiveValues.D) || 0) === (parseInt(d) * 10) && (parseInt(additiveValues.U) || 0) === (parseInt(u));
+
+      if (!userTableCorrect || !userAdditiveCorrect) {
+        setDecompValues({ M: '', C: '', D: '', U: '' });
+        setAdditiveValues({ M: '', C: '', D: '', U: '' });
+      }
+      onValidate(userTableCorrect && userAdditiveCorrect);
     }
-    else onValidate(String(value).trim() === String(task.correctAnswer));
+    else {
+      onValidate(String(value).trim() === String(task.correctAnswer), value);
+      setValue('');
+    }
   };
 
-  const handleOrderChange = (idx: number, direction: 'left' | 'right') => {
-    const newItems = [...orderItems];
-    if (direction === 'left' && idx > 0) [newItems[idx], newItems[idx-1]] = [newItems[idx-1], newItems[idx]];
-    else if (direction === 'right' && idx < newItems.length - 1) [newItems[idx], newItems[idx+1]] = [newItems[idx+1], newItems[idx]];
-    setOrderItems(newItems);
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+
+    if (over && active.id !== over.id) {
+      setOrderItems((items) => {
+        const oldIndex = items.indexOf(active.id as number);
+        const newIndex = items.indexOf(over.id as number);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
   };
 
   const isTimeExceeded = progress === 100;
@@ -363,7 +435,7 @@ const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate:
       <h3 className="text-lg sm:text-2xl font-bold mb-4 sm:mb-6 text-indigo-400 uppercase tracking-widest truncate">
         {isProblem ? 'Problème' : isDecomp ? 'Décomposition' : 'Calcul ⚡'}
       </h3>
-      
+
       <div className={`mb-6 sm:mb-8 text-indigo-900 bg-amber-50 p-4 sm:p-12 rounded-[1.5rem] sm:rounded-[2.5rem] border-4 border-dashed border-amber-200 leading-relaxed break-words overflow-hidden ${isProblem ? 'text-xl sm:text-2xl font-semibold' : 'text-3xl sm:text-6xl font-title'}`}>
         {task.question}
       </div>
@@ -382,54 +454,54 @@ const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate:
 
       {isDecomp ? (
         <div className="flex flex-col items-center gap-6 sm:gap-10 w-full overflow-hidden">
-            <div className="w-full">
-                <p className="text-left text-[10px] sm:text-xs font-bold text-indigo-400 uppercase mb-3 sm:mb-4 ml-1">1. Tableau de numération :</p>
-                <div className="grid grid-cols-4 gap-1 sm:gap-3 w-full max-w-lg mx-auto">
-                    {[
-                    {k: 'M', label: 'Milliers', color: 'bg-yellow-100 border-yellow-400 text-yellow-700', active: parseInt(task.question) >= 1000},
-                    {k: 'C', label: 'Centaines', color: 'bg-blue-100 border-blue-400 text-blue-700', active: parseInt(task.question) >= 100},
-                    {k: 'D', label: 'Dizaines', color: 'bg-red-100 border-red-400 text-red-700', active: parseInt(task.question) >= 10},
-                    {k: 'U', label: 'Unités', color: 'bg-green-100 border-green-400 text-green-700', active: true}
-                    ].map(col => col.active ? (
-                        <div key={col.k} className="flex flex-col gap-1">
-                            <div className={`py-1 rounded-t-xl font-bold text-[10px] sm:text-[12px] ${col.color.replace('100', '200')}`}>{col.k}</div>
-                            <input
-                                type="number"
-                                value={decompValues[col.k]}
-                                onChange={(e) => setDecompValues({...decompValues, [col.k]: e.target.value.slice(-1)})}
-                                className={`w-full text-lg sm:text-2xl p-1.5 sm:p-3 border-2 rounded-b-xl text-center font-title ${col.color} focus:outline-none`}
-                                placeholder="0"
-                            />
-                        </div>
-                    ) : <div key={col.k}></div>)}
+          <div className="w-full">
+            <p className="text-left text-[10px] sm:text-xs font-bold text-indigo-400 uppercase mb-3 sm:mb-4 ml-1">1. Tableau de numération :</p>
+            <div className="grid grid-cols-4 gap-1 sm:gap-3 w-full max-w-lg mx-auto">
+              {[
+                { k: 'M', label: 'Milliers', color: 'bg-yellow-100 border-yellow-400 text-yellow-700', active: parseInt(task.question) >= 1000 },
+                { k: 'C', label: 'Centaines', color: 'bg-blue-100 border-blue-400 text-blue-700', active: parseInt(task.question) >= 100 },
+                { k: 'D', label: 'Dizaines', color: 'bg-red-100 border-red-400 text-red-700', active: parseInt(task.question) >= 10 },
+                { k: 'U', label: 'Unités', color: 'bg-green-100 border-green-400 text-green-700', active: true }
+              ].map(col => col.active ? (
+                <div key={col.k} className="flex flex-col gap-1">
+                  <div className={`py-1 rounded-t-xl font-bold text-[10px] sm:text-[12px] ${col.color.replace('100', '200')}`}>{col.k}</div>
+                  <input
+                    type="number"
+                    value={decompValues[col.k]}
+                    onChange={(e) => setDecompValues({ ...decompValues, [col.k]: e.target.value.slice(-1) })}
+                    className={`w-full text-lg sm:text-2xl p-1.5 sm:p-3 border-2 rounded-b-xl text-center font-title ${col.color} focus:outline-none`}
+                    placeholder="0"
+                  />
                 </div>
+              ) : <div key={col.k}></div>)}
             </div>
+          </div>
 
-            <div className="w-full">
-                <p className="text-left text-[10px] sm:text-xs font-bold text-indigo-400 uppercase mb-3 sm:mb-4 ml-1">2. Somme décomposée :</p>
-                <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 text-base sm:text-2xl font-bold text-gray-400 w-full px-2">
-                    {[
-                        {k: 'M', color: 'border-yellow-300', active: parseInt(task.question) >= 1000},
-                        {k: 'C', color: 'border-blue-300', active: parseInt(task.question) >= 100},
-                        {k: 'D', color: 'border-red-300', active: parseInt(task.question) >= 10},
-                        {k: 'U', color: 'border-green-300', active: true}
-                    ].filter(c => c.active).map((c, i, arr) => (
-                        <React.Fragment key={c.k}>
-                            <input
-                                type="number"
-                                value={additiveValues[c.k]}
-                                onChange={(e) => setAdditiveValues({...additiveValues, [c.k]: e.target.value})}
-                                className={`w-12 sm:w-24 p-1.5 sm:p-3 border-b-4 rounded-xl text-center font-title text-indigo-900 bg-white ${c.color} focus:outline-none focus:bg-indigo-50 transition-colors text-sm sm:text-2xl`}
-                                placeholder="..."
-                            />
-                            {i < arr.length - 1 && <span>+</span>}
-                        </React.Fragment>
-                    ))}
-                    <span>=</span>
-                    <span className="text-indigo-600 bg-indigo-50 px-2 sm:px-4 py-1 sm:py-2 rounded-xl text-sm sm:text-2xl">{task.question}</span>
-                </div>
+          <div className="w-full">
+            <p className="text-left text-[10px] sm:text-xs font-bold text-indigo-400 uppercase mb-3 sm:mb-4 ml-1">2. Somme décomposée :</p>
+            <div className="flex flex-wrap items-center justify-center gap-1 sm:gap-2 text-base sm:text-2xl font-bold text-gray-400 w-full px-2">
+              {[
+                { k: 'M', color: 'border-yellow-300', active: parseInt(task.question) >= 1000 },
+                { k: 'C', color: 'border-blue-300', active: parseInt(task.question) >= 100 },
+                { k: 'D', color: 'border-red-300', active: parseInt(task.question) >= 10 },
+                { k: 'U', color: 'border-green-300', active: true }
+              ].filter(c => c.active).map((c, i, arr) => (
+                <React.Fragment key={c.k}>
+                  <input
+                    type="number"
+                    value={additiveValues[c.k]}
+                    onChange={(e) => setAdditiveValues({ ...additiveValues, [c.k]: e.target.value })}
+                    className={`w-12 sm:w-24 p-1.5 sm:p-3 border-b-4 rounded-xl text-center font-title text-indigo-900 bg-white ${c.color} focus:outline-none focus:bg-indigo-50 transition-colors text-sm sm:text-2xl`}
+                    placeholder="..."
+                  />
+                  {i < arr.length - 1 && <span>+</span>}
+                </React.Fragment>
+              ))}
+              <span>=</span>
+              <span className="text-indigo-600 bg-indigo-50 px-2 sm:px-4 py-1 sm:py-2 rounded-xl text-sm sm:text-2xl">{task.question}</span>
             </div>
-            <button onClick={check} className="w-full sm:w-auto bg-indigo-600 text-white px-10 sm:px-20 py-4 sm:py-6 rounded-2xl sm:rounded-3xl text-xl sm:text-2xl font-bold shadow-xl hover:scale-105 active:scale-95 transition-all">Vérifier 🎯</button>
+          </div>
+          <button onClick={check} className="w-full sm:w-auto bg-indigo-600 text-white px-10 sm:px-20 py-4 sm:py-6 rounded-2xl sm:rounded-3xl text-xl sm:text-2xl font-bold shadow-xl hover:scale-105 active:scale-95 transition-all">Vérifier 🎯</button>
         </div>
       ) : task.type !== 'ordering' ? (
         <div className="flex flex-col items-center gap-6 sm:gap-10">
@@ -447,20 +519,54 @@ const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate:
         </div>
       ) : (
         <div className="flex flex-col items-center gap-6 sm:gap-10 w-full max-w-full overflow-hidden">
-          <div className="flex flex-wrap justify-center gap-2 sm:gap-4 w-full">
-            {orderItems.map((num, i) => (
-              <div key={i} className="flex flex-col items-center gap-1.5 sm:gap-4 flex-shrink-0">
-                <div className="bg-white p-3 sm:p-8 text-xl sm:text-4xl font-title rounded-2xl sm:rounded-3xl border-2 sm:border-4 border-indigo-100 shadow-lg min-w-[60px] sm:min-w-[100px] truncate">{num}</div>
-                <div className="flex gap-1 sm:gap-2">
-                  <button onClick={() => handleOrderChange(i, 'left')} className="bg-indigo-100 p-1.5 sm:p-3 rounded-xl hover:bg-indigo-600 hover:text-white text-[10px] sm:text-base">⬅️</button>
-                  <button onClick={() => handleOrderChange(i, 'right')} className="bg-indigo-100 p-1.5 sm:p-3 rounded-xl hover:bg-indigo-600 hover:text-white text-[10px] sm:text-base">➡️</button>
-                </div>
+          <DndContext
+            sensors={sensors}
+            collisionDetection={closestCenter}
+            onDragEnd={handleDragEnd}
+          >
+            <SortableContext
+              items={orderItems}
+              strategy={horizontalListSortingStrategy}
+            >
+              <div className="flex flex-wrap justify-center gap-2 sm:gap-4 w-full touch-none">
+                {orderItems.map((num) => (
+                  <SortableItem key={num} id={num} />
+                ))}
               </div>
-            ))}
-          </div>
+            </SortableContext>
+          </DndContext>
           <button onClick={check} className="w-full sm:w-auto bg-indigo-600 text-white px-12 sm:px-20 py-4 sm:py-6 rounded-2xl sm:rounded-3xl text-xl sm:text-2xl font-bold">Vérifier 🔢</button>
         </div>
       )}
+    </div>
+  );
+};
+
+const SortableItem: React.FC<{ id: number }> = ({ id }) => {
+  const {
+    attributes,
+    listeners,
+    setNodeRef,
+    transform,
+    transition,
+    isDragging
+  } = useSortable({ id });
+
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : 'auto',
+  };
+
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`bg-white p-3 sm:p-8 text-xl sm:text-4xl font-title rounded-2xl sm:rounded-3xl border-2 sm:border-4 border-indigo-100 shadow-lg min-w-[60px] sm:min-w-[100px] truncate cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-50 scale-105 shadow-2xl ring-4 ring-indigo-300' : ''}`}
+    >
+      {id}
     </div>
   );
 };

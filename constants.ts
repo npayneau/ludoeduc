@@ -16,3 +16,10 @@ export const CATEGORY_LABELS: Record<Category, string> = {
   adjectif: 'Adj.',
   none: 'Autre'
 };
+
+export const TIMINGS = {
+  FEEDBACK_CORRECT: 1800,
+  FEEDBACK_RETRY: 1500,
+  FEEDBACK_WRONG_MATH: 3000,
+  FEEDBACK_WRONG_FRENCH: 6000,
+};
