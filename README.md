@@ -27,10 +27,16 @@ Destinée aux élèves du **CE1 au CM2**, cette plateforme offre un environnemen
 3. **Dictée Interactive :** Écouter la voix du navigateur et écrire la phrase sans fautes (plus de 200 phrases disponibles).
 
 ### 🔢 Mathématiques
-1. **Calcul Mental :** Additions personnalisables et Tables de multiplication avec un système de chronomètre ajustable.
+1. **Calcul Mental :** Additions personnalisables et Tables de multiplication avec un système de chronomètre ajustable (saisie libre sur PC, menu déroulant optimisé sur mobile).
 2. **Décomposition (M-C-D-U) :** Un outil visuel unique avec tableau de numération et somme décomposée pour bien comprendre les milliers, centaines, dizaines et unités.
-3. **Logique & Classement :** Ranger les nombres dans l'ordre croissant et compléter des suites logiques.
+3. **Logique & Classement :** Ranger les nombres dans l'ordre croissant et compléter des suites logiques via un système de **Drag & Drop** intuitif.
 4. **Problèmes de Réflexion :** Plus de 80 situations concrètes et variées pour apprendre à raisonner.
+
+### 🧭 Découverte (Nouveau !)
+1. **Apprentissage de l'heure :** Une horloge analogique interactive pour apprendre à lire et régler l'heure.
+   - **Mode Lecture :** Identifier l'heure affichée (avec indicateur Matin 🌅 / Après-midi 🌇).
+   - **Mode Réglage :** Manipuler les aiguilles (Rose pour les heures, Bleue pour les minutes) pour atteindre l'heure demandée.
+   - **Difficulté Adaptative :** Heures et demies pour les plus jeunes, minutes précises pour les plus grands.
 
 ---
 
@@ -40,6 +46,7 @@ L'application utilise les technologies web les plus modernes :
 - **React 19** pour une interface ultra-réactive.
 - **Tailwind CSS** pour un design moderne, "pixel-perfect" et adaptatif.
 - **Web Speech API** : Synthèse vocale native pour une expérience fluide et locale.
+- **Dnd-kit** : Pour une gestion fluide et performante du glisser-déposer.
 - **TypeScript** pour une stabilité maximale du programme.
 
 ---
@@ -47,7 +54,7 @@ L'application utilise les technologies web les plus modernes :
 ## 🚀 Comment ça marche ?
 
 1. **Choisis ton niveau :** CE1, CE2, CM1 ou CM2.
-2. **Sélectionne une matière :** Clique sur une tuile géante en Français ou en Maths.
+2. **Sélectionne une matière :** Clique sur une tuile géante en Français, en Maths ou en Découverte.
 3. **Configure ton défi :** Choisis le nombre de questions et règle le chrono pour le calcul mental.
 4. **Apprends et gagne :** Cumule les réussites et admire tes scores !
 
