@@ -1,9 +1,8 @@
-
-import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, TimeTask } from './types';
+import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask } from './types';
 import { SENTENCE_DATABASE } from './database/sentences';
 import { VERB_DATABASE } from './database/verbs';
 import { MATH_DATABASE } from './database/math';
-import { DICTATION_DATABASE } from './database/dictations';
+import { DICTATION_DATABASE, HOLEY_DICTATION_DATABASE } from './database/dictations';
 
 /**
  * Sélectionne X phrases au hasard pour un niveau donné (Grammaire).
@@ -43,6 +42,13 @@ export const getConjugationQuestions = (level: Level, limit: number = 5): Conjug
  */
 export const getDictationQuestions = (level: Level, limit: number = 5): DictationTask[] => {
   return DICTATION_DATABASE
+    .filter(d => d.level === level)
+    .sort(() => 0.5 - Math.random())
+    .slice(0, limit);
+};
+
+export const getHoleyDictationQuestions = (level: Level, limit: number = 5): HoleyDictationTask[] => {
+  return HOLEY_DICTATION_DATABASE
     .filter(d => d.level === level)
     .sort(() => 0.5 - Math.random())
     .slice(0, limit);

@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Level, MathType } from './types';
 import ExerciseRunner from './components/ExerciseRunner';
@@ -22,7 +21,7 @@ const App: React.FC = () => {
       if (type === 'multiplication') setSelectedTables([2, 5, 10]);
       if (type === 'addition') setAdditionMax(10);
       setTotalQuestions(5);
-    } else if (type === 'dictée') {
+    } else if (type === 'dictée' || type === 'dictée-trou') {
       setGameState('configuringDictation');
       setTotalQuestions(3);
     } else {
@@ -90,7 +89,7 @@ const App: React.FC = () => {
       <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-indigo-50">
         <div className={`bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full text-center border-b-[8px] sm:border-b-[12px] ${gameState === 'configuringMath' ? 'border-amber-200' : 'border-emerald-200'}`}>
           <h2 className={`text-3xl sm:text-4xl font-title mb-6 ${gameState === 'configuringMath' ? 'text-amber-600' : 'text-emerald-600'}`}>
-            {gameState === 'configuringMath' ? 'Prépare ton défi ! 🔢' : 'Prépare ta dictée ! 📝'}
+            {gameState === 'configuringMath' ? 'Prépare ton défi ! 🔢' : exerciseType === 'dictée-trou' ? 'Dictée à trous ! 📝' : 'Prépare ta dictée ! 📝'}
           </h2>
 
           {gameState === 'configuringMath' && (
@@ -274,7 +273,6 @@ const App: React.FC = () => {
           </button>
         </div>
       </header>
-
       <div className="grid lg:grid-cols-2 gap-8 sm:gap-10 max-w-6xl mx-auto">
         {/* Français Section */}
         <div className="bg-white p-6 sm:p-10 rounded-[2.5rem] sm:rounded-[3rem] shadow-xl border-t-[8px] sm:border-t-[12px] border-emerald-400 flex flex-col h-full">
@@ -289,7 +287,7 @@ const App: React.FC = () => {
             >
               <h3 className="text-xl sm:text-2xl font-bold text-emerald-700 mb-1 sm:mb-2">Structure d'une phrase</h3>
               <p className="text-sm sm:text-base text-emerald-600/70">Identifie les classes grammaticales.</p>
-              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all text-2xl">🖍️</span>
+              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all text-2xl">🖍️</span>
             </button>
             <button
               onClick={() => startExercise('français', 'conjugaison')}
@@ -297,7 +295,15 @@ const App: React.FC = () => {
             >
               <h3 className="text-xl sm:text-2xl font-bold text-emerald-700 mb-1 sm:mb-2">Défi Conjugaison</h3>
               <p className="text-sm sm:text-base text-emerald-600/70">Conjugue les verbes aux temps demandés.</p>
-              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 opacity-0 group-hover:opacity-100 transition-all text-2xl">✍️</span>
+              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all text-2xl">✍️</span>
+            </button>
+            <button
+              onClick={() => startExercise('français', 'dictée-trou')}
+              className="group relative p-6 sm:p-8 rounded-3xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all text-left"
+            >
+              <h3 className="text-xl sm:text-2xl font-bold text-emerald-700 mb-1 sm:mb-2">Dictée à trous</h3>
+              <p className="text-sm sm:text-base text-emerald-600/70">Complète les phrases avec le mot manquant.</p>
+              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all text-2xl">📝</span>
             </button>
             <button
               onClick={() => startExercise('français', 'dictée')}

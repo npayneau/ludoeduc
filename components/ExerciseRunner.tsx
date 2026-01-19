@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, TimeTask } from '../types';
-import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getTimeQuestions } from '../data';
+import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask } from '../types';
+import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions } from '../data';
 import { CATEGORY_COLORS, CATEGORY_LABELS, TIMINGS } from '../constants';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -45,6 +45,7 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
       if (type === 'grammaire') q = getGrammarQuestions(level, totalQuestions);
       else if (type === 'conjugaison') q = getConjugationQuestions(level, totalQuestions);
       else if (type === 'dictée') q = getDictationQuestions(level, totalQuestions);
+      else if (type === 'dictée-trou') q = getHoleyDictationQuestions(level, totalQuestions);
     } else if (subject === 'autre') {
       if (type === 'time') q = getTimeQuestions(level, totalQuestions);
     } else {
@@ -161,7 +162,9 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
                     <span className="text-lg opacity-80 italic">soit {(current.correctAnswer as string).split(',').map((v, i) => parseInt(v) * Math.pow(10, 3 - i)).filter(v => v !== 0).join(' + ')}</span>
                   </div>
                 )
-                : String(current.correctAnswer || current.answer || current.sentence || (current as TimeTask).time || '...')
+                : type === 'dictée-trou'
+                  ? (current as HoleyDictationTask).missingWord
+                  : String(current.correctAnswer || current.answer || current.sentence || (current as TimeTask).time || '...')
               }
             </div>
           </div>
@@ -187,6 +190,12 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
             onValidate={handleValidation}
           />
         )}
+        {type === 'dictée-trou' && (
+          <HoleyDictationExercise
+            task={current as HoleyDictationTask}
+            onValidate={handleValidation}
+          />
+        )}
         {type === 'time' && (
           <TimeExercise
             task={current as TimeTask}
@@ -201,6 +210,73 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
           />
         )}
       </div>
+    </div>
+  );
+};
+
+const HoleyDictationExercise: React.FC<{ task: HoleyDictationTask, onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [value, setValue] = useState('');
+  const [isPlaying, setIsPlaying] = useState(false);
+
+  const playAudio = () => {
+    if (isPlaying) return;
+
+    const sentence = `${task.textLeft} ${task.missingWord} ${task.textRight}`;
+    const utterance = new SpeechSynthesisUtterance(sentence);
+    utterance.lang = 'fr-FR';
+    utterance.rate = 0.8;
+    utterance.pitch = 1;
+
+    utterance.onstart = () => setIsPlaying(true);
+    utterance.onend = () => setIsPlaying(false);
+    utterance.onerror = () => setIsPlaying(false);
+
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const check = () => {
+    onValidate(value.trim().toLowerCase() === task.missingWord.toLowerCase(), value);
+    setValue('');
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 sm:mb-6 text-indigo-700">Dictée à trous</h3>
+      <p className="text-lg sm:text-lg text-gray-500 mb-6 italic">Complète la phrase avec le mot manquant.</p>
+
+      <button
+        onClick={playAudio}
+        disabled={isPlaying}
+        className={`mb-8 w-20 h-20 sm:w-24 sm:h-24 rounded-full border-4 transition-all flex items-center justify-center ${isPlaying ? 'bg-indigo-100 border-indigo-200' : 'bg-white border-indigo-500 hover:scale-105 shadow-xl'}`}
+      >
+        {isPlaying ? (
+          <div className="flex gap-1">
+            <div className="w-1 h-3 bg-indigo-500 animate-bounce rounded-full"></div>
+            <div className="w-1 h-5 bg-indigo-500 animate-bounce delay-75 rounded-full"></div>
+            <div className="w-1 h-3 bg-indigo-500 animate-bounce delay-150 rounded-full"></div>
+          </div>
+        ) : (
+          <span className="text-3xl sm:text-4xl">🔊</span>
+        )}
+      </button>
+
+      <div className="flex flex-wrap justify-center items-center gap-2 sm:gap-4 text-xl sm:text-3xl mb-8 sm:mb-10 font-medium">
+        <span>{task.textLeft}</span>
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => setValue(e.target.value)}
+          onKeyDown={(e) => e.key === 'Enter' && check()}
+          className="border-b-4 border-indigo-400 bg-indigo-50 px-2 sm:px-4 py-1 text-center font-bold text-indigo-700 focus:outline-none focus:border-indigo-600 min-w-[120px] sm:min-w-[150px]"
+          autoFocus
+          placeholder="..."
+        />
+        <span>{task.textRight}</span>
+      </div>
+
+      <button onClick={check} className="bg-indigo-600 text-white px-10 sm:px-16 py-4 sm:py-5 rounded-2xl sm:rounded-3xl text-xl sm:text-2xl font-bold hover:bg-indigo-700 shadow-xl transition-all">
+        Valider ✍️
+      </button>
     </div>
   );
 };

@@ -1,5 +1,4 @@
-
-import { DictationTask } from '../types';
+import { DictationTask, HoleyDictationTask } from '../types';
 
 export const DICTATION_DATABASE: DictationTask[] = [
   // --- CE1 (50 phrases) ---
@@ -208,5 +207,55 @@ export const DICTATION_DATABASE: DictationTask[] = [
   { id: 197, level: 'CM2', sentence: "La transmission du savoir est le rôle essentiel des enseignants dévoués." },
   { id: 198, level: 'CM2', sentence: "Les infrastructures modernes facilitent le développement des régions isolées." },
   { id: 199, level: 'CM2', sentence: "La biodiversité marine est menacée par la pollution plastique des océans." },
-  { id: 200, level: 'CM2', sentence: "Le patrimoine mondial de l'humanité regroupe des sites d'une valeur inestimable." },
+  { id: 200, level: 'CM2', sentence: "Les scientifiques étudient les phénomènes climatiques." }
+];
+
+export const HOLEY_DICTATION_DATABASE: HoleyDictationTask[] = [
+  // CE1
+  { id: 1, level: 'CE1', textLeft: "Le chat", textRight: "sur le tapis.", missingWord: "dort" },
+  { id: 2, level: 'CE1', textLeft: "La petite fille", textRight: "une pomme.", missingWord: "mange" },
+  { id: 3, level: 'CE1', textLeft: "Le chien", textRight: "dans le jardin.", missingWord: "court" },
+  { id: 4, level: 'CE1', textLeft: "Il fait", textRight: "aujourd'hui.", missingWord: "beau" },
+  { id: 5, level: 'CE1', textLeft: "Maman", textRight: "un bon gâteau.", missingWord: "prépare" },
+  { id: 6, level: 'CE1', textLeft: "Le cartable est", textRight: "lourd.", missingWord: "très" },
+  { id: 7, level: 'CE1', textLeft: "Les oiseaux", textRight: "le matin.", missingWord: "chantent" },
+  { id: 8, level: 'CE1', textLeft: "Je joue avec mon", textRight: "rouge.", missingWord: "ballon" },
+  { id: 9, level: 'CE1', textLeft: "La maîtresse", textRight: "au tableau.", missingWord: "écrit" },
+  { id: 10, level: 'CE1', textLeft: "Un gros lapin", textRight: "vite.", missingWord: "saute" },
+
+  // CE2
+  { id: 20, level: 'CE2', textLeft: "Le soleil", textRight: "dans le ciel bleu.", missingWord: "brille" },
+  { id: 21, level: 'CE2', textLeft: "Les enfants", textRight: "dans la cour de récréation.", missingWord: "jouent" },
+  { id: 22, level: 'CE2', textLeft: "La maîtresse", textRight: "une histoire passionnante.", missingWord: "raconte" },
+  { id: 23, level: 'CE2', textLeft: "Nous", textRight: "nos devoirs tous les soirs.", missingWord: "faisons" },
+  { id: 24, level: 'CE2', textLeft: "Le boulanger", textRight: "du bon pain frais.", missingWord: "vend" },
+  { id: 25, level: 'CE2', textLeft: "Les feuilles des arbres", textRight: "en automne.", missingWord: "tombent" },
+  { id: 26, level: 'CE2', textLeft: "Mon frère", textRight: "une jolie maison.", missingWord: "dessine" },
+  { id: 27, level: 'CE2', textLeft: "La voiture rouge", textRight: "très vite.", missingWord: "roule" },
+  { id: 28, level: 'CE2', textLeft: "Ils", textRight: "le train pour aller à Paris.", missingWord: "prennent" },
+  { id: 29, level: 'CE2', textLeft: "Le facteur", textRight: "le courrier ce matin.", missingWord: "apporte" },
+
+  // CM1
+  { id: 40, level: 'CM1', textLeft: "Le vainqueur de la course", textRight: "la médaille d'or.", missingWord: "reçoit" },
+  { id: 41, level: 'CM1', textLeft: "Les étoiles", textRight: "dans la nuit noire.", missingWord: "scintillent" },
+  { id: 42, level: 'CM1', textLeft: "L'artiste", textRight: "une œuvre magnifique.", missingWord: "peint" },
+  { id: 43, level: 'CM1', textLeft: "Nous", textRight: "patiemment le bus.", missingWord: "attendons" },
+  { id: 44, level: 'CM1', textLeft: "Ce monument", textRight: "à l'histoire de la ville.", missingWord: "appartient" },
+  { id: 45, level: 'CM1', textLeft: "Les élèves", textRight: "la poésie par cœur.", missingWord: "apprennent" },
+  { id: 46, level: 'CM1', textLeft: "Le jardinier", textRight: "les fleurs du parc.", missingWord: "arrose" },
+  { id: 47, level: 'CM1', textLeft: "Tu", textRight: "tes affaires avant de partir.", missingWord: "ranges" },
+  { id: 48, level: 'CM1', textLeft: "L'orage", textRight: "soudainement hier soir.", missingWord: "éclata" },
+  { id: 49, level: 'CM1', textLeft: "Elles", textRight: "une chanson douce.", missingWord: "chantent" },
+
+  // CM2
+  { id: 60, level: 'CM2', textLeft: "L'astronaute", textRight: "la surface de la lune.", missingWord: "explore" },
+  { id: 61, level: 'CM2', textLeft: "Les spectateurs", textRight: "à la fin du spectacle.", missingWord: "applaudissent" },
+  { id: 62, level: 'CM2', textLeft: "L'ancien château", textRight: "la vallée verdoyante.", missingWord: "domine" },
+  { id: 63, level: 'CM2', textLeft: "Nous", textRight: "les conséquences de nos actes.", missingWord: "mesurons" },
+  { id: 64, level: 'CM2', textLeft: "L'écrivain", textRight: "son nouveau roman.", missingWord: "publie" },
+  { id: 65, level: 'CM2', textLeft: "Ces mesures", textRight: "la sécurité de tous.", missingWord: "garantissent" },
+  { id: 66, level: 'CM2', textLeft: "La rivière", textRight: "paisiblement vers la mer.", missingWord: "coule" },
+  { id: 67, level: 'CM2', textLeft: "Vous", textRight: "cette énigme difficile.", missingWord: "résolvez" },
+  { id: 68, level: 'CM2', textLeft: "Les technologies", textRight: "notre quotidien.", missingWord: "transforment" },
+  { id: 69, level: 'CM2', textLeft: "La lumière", textRight: "à travers les vitraux.", missingWord: "filtre" },
 ];

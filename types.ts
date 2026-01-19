@@ -1,4 +1,3 @@
-
 export type Level = 'CE1' | 'CE2' | 'CM1' | 'CM2';
 
 export type Category = 'verbe' | 'nom' | 'determinant' | 'adjectif' | 'none';
@@ -28,6 +27,14 @@ export interface ConjugationTask {
 export interface DictationTask {
   id: number;
   sentence: string;
+  level: Level;
+}
+
+export interface HoleyDictationTask {
+  id: number;
+  textLeft: string;
+  textRight: string;
+  missingWord: string;
   level: Level;
 }
 
