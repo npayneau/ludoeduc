@@ -1,8 +1,11 @@
-import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask } from './types';
+import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask, NounSortTask, NounIdentifyTask, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask } from './types';
 import { SENTENCE_DATABASE } from './database/sentences';
 import { VERB_DATABASE } from './database/verbs';
 import { MATH_DATABASE } from './database/math';
 import { DICTATION_DATABASE, HOLEY_DICTATION_DATABASE } from './database/dictations';
+import { NOUN_SORT_DATABASE, NOUN_IDENTIFY_DATABASE, NOUN_PLURAL_DATABASE, NOUN_GENDER_DATABASE } from './database/nouns';
+import { VERB_IDENTIFY_DATABASE, VERB_CONJUGATED_DATABASE, VERB_INFINITIVE_DATABASE, VERB_TENSE_DATABASE } from './database/verb-exercises';
+import { DET_IDENTIFY_DATABASE, DET_GENDER_DATABASE, DET_NUMBER_DATABASE, DET_WRITE_DATABASE, DET_CHOOSE_DATABASE, DET_ARTICLE_DATABASE } from './database/determiners';
 
 /**
  * Sélectionne X phrases au hasard pour un niveau donné (Grammaire).
@@ -140,3 +143,130 @@ export const getMathQuestions = (level: Level, type: string, selectedTables?: nu
 
 export const GRAMMAR_BANK = SENTENCE_DATABASE;
 export const MATH_BANK = MATH_DATABASE;
+
+export const getNounSortQuestions = (level: Level, limit: number = 5): NounSortTask[] =>
+  NOUN_SORT_DATABASE.filter(n => n.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getNounIdentifyQuestions = (level: Level, limit: number = 5): NounIdentifyTask[] =>
+  NOUN_IDENTIFY_DATABASE.filter(n => n.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getNounPluralQuestions = (level: Level, rule: string, limit: number = 5): NounPluralTask[] => {
+  let filtered = NOUN_PLURAL_DATABASE.filter(n => n.rule === rule && n.level === level);
+  if (filtered.length < limit) filtered = NOUN_PLURAL_DATABASE.filter(n => n.rule === rule);
+  return filtered.sort(() => 0.5 - Math.random()).slice(0, limit);
+};
+
+export const getNounGenderQuestions = (level: Level, rule: string, limit: number = 5): NounGenderTask[] => {
+  let filtered = NOUN_GENDER_DATABASE.filter(n => n.rule === rule && n.level === level);
+  if (filtered.length < limit) filtered = NOUN_GENDER_DATABASE.filter(n => n.rule === rule);
+  return filtered.sort(() => 0.5 - Math.random()).slice(0, limit);
+};
+
+export const getVerbIdentifyQuestions = (level: Level, limit: number = 5): VerbIdentifyTask[] =>
+  VERB_IDENTIFY_DATABASE.filter(v => v.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getVerbConjugatedQuestions = (level: Level, limit: number = 5): VerbConjugatedTask[] =>
+  VERB_CONJUGATED_DATABASE.filter(v => v.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getVerbInfinitiveQuestions = (level: Level, limit: number = 5): VerbInfinitiveTask[] =>
+  VERB_INFINITIVE_DATABASE.filter(v => v.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getVerbTenseQuestions = (level: Level, limit: number = 5): VerbTenseTask[] =>
+  VERB_TENSE_DATABASE.filter(v => v.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getVerbConjugateExQuestions = (level: Level, limit: number = 5): VerbConjugateExTask[] => {
+  const ER_VERBS = ['chanter', 'jouer', 'manger', 'sauter', 'marcher', 'danser', 'dessiner', 'écouter', 'aimer', 'parler', 'travailler', 'donner'];
+  const IRREGULAR_CE2 = ['faire', 'aller', 'dire', 'venir', 'pouvoir', 'voir', 'vouloir', 'prendre'];
+
+  const SUBJECTS = [
+    { display: 'Je', person: 'Je' },
+    { display: 'Tu', person: 'Tu' },
+    { display: 'Il', person: 'Il' },
+    { display: 'Nous', person: 'Nous' },
+    { display: 'Vous', person: 'Vous' },
+    { display: 'Ils', person: 'Ils' },
+    { display: 'Le chat', person: 'Il' },
+    { display: 'La petite fille', person: 'Il' },
+    { display: 'Mon frère', person: 'Il' },
+    { display: 'Les enfants', person: 'Ils' },
+    { display: 'Les oiseaux', person: 'Ils' },
+    { display: 'Maman', person: 'Il' },
+  ];
+
+  const generateErConjugations = (verb: string): Record<string, Record<string, string>> => {
+    const stem = verb.slice(0, -2);
+    const stemPres = verb.endsWith('ger') ? stem.slice(0, -1) : stem;
+    return {
+      'présent': {
+        'Je': `${stem}e`, 'Tu': `${stem}es`, 'Il': `${stem}e`,
+        'Nous': `${stemPres}ons`, 'Vous': `${stem}ez`, 'Ils': `${stem}ent`
+      },
+      'imparfait': {
+        'Je': `${stem}ais`, 'Tu': `${stem}ais`, 'Il': `${stem}ait`,
+        'Nous': `${stem}ions`, 'Vous': `${stem}iez`, 'Ils': `${stem}aient`
+      },
+      'futur': {
+        'Je': `${verb}ai`, 'Tu': `${verb}as`, 'Il': `${verb}a`,
+        'Nous': `${verb}ons`, 'Vous': `${verb}ez`, 'Ils': `${verb}ont`
+      },
+      'passé composé': {
+        'Je': `ai ${stem}é`, 'Tu': `as ${stem}é`, 'Il': `a ${stem}é`,
+        'Nous': `avons ${stem}é`, 'Vous': `avez ${stem}é`, 'Ils': `ont ${stem}é`
+      }
+    };
+  };
+
+  const availableVerbNames = level === 'CE1'
+    ? [...ER_VERBS, 'être', 'avoir']
+    : [...ER_VERBS, 'être', 'avoir', ...IRREGULAR_CE2];
+
+  const tenses: Tense[] = ['présent', 'futur', 'imparfait', 'passé composé'];
+  const questions: VerbConjugateExTask[] = [];
+  const used = new Set<string>();
+
+  for (let attempts = 0; questions.length < limit && attempts < 100; attempts++) {
+    const verbName = availableVerbNames[Math.floor(Math.random() * availableVerbNames.length)];
+    const tense = tenses[Math.floor(Math.random() * tenses.length)];
+    const subjectInfo = SUBJECTS[Math.floor(Math.random() * SUBJECTS.length)];
+    const key = `${verbName}-${tense}-${subjectInfo.person}`;
+    if (used.has(key)) continue;
+    used.add(key);
+
+    const verbData = VERB_DATABASE.find(v => v.verb === verbName);
+    const conjugations = verbData ? verbData.conjugations : generateErConjugations(verbName);
+    const answer = conjugations[tense]?.[subjectInfo.person];
+    if (!answer) continue;
+
+    questions.push({
+      id: questions.length,
+      infinitive: verbName,
+      subject: subjectInfo.display,
+      grammaticalPerson: subjectInfo.person,
+      tense,
+      answer,
+      level
+    });
+  }
+
+  return questions;
+};
+
+export const getDetIdentifyQuestions = (level: Level, limit: number = 5): DetIdentifyTask[] =>
+  DET_IDENTIFY_DATABASE.filter(n => n.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getDetGenderQuestions = (level: Level, limit: number = 5): DetGenderTask[] =>
+  DET_GENDER_DATABASE.filter(n => n.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getDetNumberQuestions = (level: Level, limit: number = 5): DetNumberTask[] =>
+  DET_NUMBER_DATABASE.filter(n => n.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getDetWriteQuestions = (level: Level, limit: number = 5): DetWriteTask[] =>
+  DET_WRITE_DATABASE.filter(n => n.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getDetChooseQuestions = (level: Level, limit: number = 5): DetChooseTask[] =>
+  DET_CHOOSE_DATABASE.filter(n => n.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getDetArticleQuestions = (level: Level, limit: number = 5): DetArticleSortTask[] => {
+  const filtered = DET_ARTICLE_DATABASE.filter(n => ['CE2', 'CM1', 'CM2'].includes(n.level));
+  return filtered.sort(() => 0.5 - Math.random()).slice(0, limit);
+};

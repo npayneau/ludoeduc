@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask } from '../types';
-import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions } from '../data';
+import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask } from '../types';
+import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions } from '../data';
 import { CATEGORY_COLORS, CATEGORY_LABELS, TIMINGS } from '../constants';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -46,6 +46,21 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
       else if (type === 'conjugaison') q = getConjugationQuestions(level, totalQuestions);
       else if (type === 'dictée') q = getDictationQuestions(level, totalQuestions);
       else if (type === 'dictée-trou') q = getHoleyDictationQuestions(level, totalQuestions);
+      else if (type === 'noms-tri') q = getNounSortQuestions(level, totalQuestions);
+      else if (type === 'noms-identification') q = getNounIdentifyQuestions(level, totalQuestions);
+      else if (type.startsWith('noms-pluriel-')) q = getNounPluralQuestions(level, type.replace('noms-pluriel-', ''), totalQuestions);
+      else if (type.startsWith('noms-genre-')) q = getNounGenderQuestions(level, type.replace('noms-genre-', ''), totalQuestions);
+      else if (type === 'verbes-identification') q = getVerbIdentifyQuestions(level, totalQuestions);
+      else if (type === 'verbes-conjugue-ou-non') q = getVerbConjugatedQuestions(level, totalQuestions);
+      else if (type === 'verbes-infinitif') q = getVerbInfinitiveQuestions(level, totalQuestions);
+      else if (type === 'verbes-temps') q = getVerbTenseQuestions(level, totalQuestions);
+      else if (type === 'verbes-conjugaison') q = getVerbConjugateExQuestions(level, totalQuestions);
+      else if (type === 'det-identification') q = getDetIdentifyQuestions(level, totalQuestions);
+      else if (type === 'det-genre') q = getDetGenderQuestions(level, totalQuestions);
+      else if (type === 'det-nombre') q = getDetNumberQuestions(level, totalQuestions);
+      else if (type === 'det-ecrire') q = getDetWriteQuestions(level, totalQuestions);
+      else if (type === 'det-choisir') q = getDetChooseQuestions(level, totalQuestions);
+      else if (type === 'det-articles') q = getDetArticleQuestions(level, totalQuestions);
     } else if (subject === 'autre') {
       if (type === 'time') q = getTimeQuestions(level, totalQuestions);
     } else {
@@ -164,7 +179,37 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
                 )
                 : type === 'dictée-trou'
                   ? (current as HoleyDictationTask).missingWord
-                  : String(current.correctAnswer || current.answer || current.sentence || (current as TimeTask).time || '...')
+                  : type === 'noms-tri'
+                    ? ((current as NounSortTask).isProper ? 'Nom propre 🏛️' : 'Nom commun 📗')
+                    : type === 'noms-identification'
+                      ? 'Les noms : ' + (current as NounIdentifyTask).words.filter((w: NounIdentifyWord) => w.isNoun).map((w: NounIdentifyWord) => w.text).join(', ')
+                      : type.startsWith('noms-pluriel-')
+                        ? (current as NounPluralTask).plural
+                        : type.startsWith('noms-genre-')
+                          ? (current as NounGenderTask).feminine
+                          : type === 'verbes-conjugue-ou-non'
+                            ? ((current as VerbConjugatedTask).isConjugated ? 'Conjugué ✅' : 'Infinitif / Non conjugué ❌')
+                          : type === 'verbes-infinitif'
+                            ? (current as VerbInfinitiveTask).infinitive
+                          : type === 'verbes-temps'
+                            ? (current as VerbTenseTask).tense.charAt(0).toUpperCase() + (current as VerbTenseTask).tense.slice(1)
+                          : type === 'verbes-conjugaison'
+                            ? (current as VerbConjugateExTask).answer
+                          : type === 'verbes-identification'
+                            ? `Les verbes : ${(current as VerbIdentifyTask).words.filter(w => w.isVerb).map(w => w.text).join(', ')}`
+                          : type === 'det-genre'
+                            ? (current as DetGenderTask).gender.charAt(0).toUpperCase() + (current as DetGenderTask).gender.slice(1)
+                          : type === 'det-nombre'
+                            ? (current as DetNumberTask).number.charAt(0).toUpperCase() + (current as DetNumberTask).number.slice(1)
+                          : type === 'det-ecrire'
+                            ? (current as DetWriteTask).accepted.join(' / ')
+                          : type === 'det-choisir'
+                            ? (current as DetChooseTask).correct.join(', ')
+                          : type === 'det-articles'
+                            ? (current as DetArticleSortTask).type.charAt(0).toUpperCase() + (current as DetArticleSortTask).type.slice(1)
+                          : type === 'det-identification'
+                            ? 'Les déterminants : ' + (current as DetIdentifyTask).words.filter((w: DetIdentifyWord) => w.isDeterminer).map((w: DetIdentifyWord) => w.text).join(', ')
+                          : String(current.correctAnswer || current.answer || current.sentence || (current as TimeTask).time || '...')
               }
             </div>
           </div>
@@ -202,6 +247,21 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
             onValidate={handleValidation}
           />
         )}
+        {type === 'noms-tri' && <NounSortExercise task={current as NounSortTask} onValidate={handleValidation} />}
+        {type === 'noms-identification' && <NounIdentifyExercise task={current as NounIdentifyTask} onValidate={handleValidation} />}
+        {type.startsWith('noms-pluriel-') && <NounPluralExercise task={current as NounPluralTask} onValidate={handleValidation} />}
+        {type.startsWith('noms-genre-') && <NounGenderExercise task={current as NounGenderTask} onValidate={handleValidation} />}
+        {type === 'verbes-identification' && <VerbIdentifyExercise task={current as VerbIdentifyTask} onValidate={handleValidation} />}
+        {type === 'verbes-conjugue-ou-non' && <VerbConjugatedExercise task={current as VerbConjugatedTask} onValidate={handleValidation} />}
+        {type === 'verbes-infinitif' && <VerbInfinitiveExercise task={current as VerbInfinitiveTask} onValidate={handleValidation} />}
+        {type === 'verbes-temps' && <VerbTenseExercise task={current as VerbTenseTask} onValidate={handleValidation} />}
+        {type === 'verbes-conjugaison' && <VerbConjugateExExercise task={current as VerbConjugateExTask} onValidate={handleValidation} />}
+        {type === 'det-identification' && <DetIdentifyExercise task={current as DetIdentifyTask} onValidate={handleValidation} />}
+        {type === 'det-genre' && <DetGenderExercise task={current as DetGenderTask} onValidate={handleValidation} />}
+        {type === 'det-nombre' && <DetNumberExercise task={current as DetNumberTask} onValidate={handleValidation} />}
+        {type === 'det-ecrire' && <DetWriteExercise task={current as DetWriteTask} onValidate={handleValidation} />}
+        {type === 'det-choisir' && <DetChooseExercise task={current as DetChooseTask} onValidate={handleValidation} />}
+        {type === 'det-articles' && <DetArticleSortExercise task={current as DetArticleSortTask} onValidate={handleValidation} />}
         {subject === 'maths' && (
           <MathDisplay
             task={current as MathTask}
@@ -285,6 +345,11 @@ const GrammarExercise: React.FC<{ sentence: GrammarSentence, onValidate: (c: boo
   const [selectedCategory, setSelectedCategory] = useState<any>('nom');
   const [userColors, setUserColors] = useState<Record<number, any>>({});
 
+  const availableCategories: Category[] = [
+    'determinant', 'nom', 'adjectif', 'verbe', 'pronom',
+    ...(sentence.level !== 'CE1' ? ['adverbe' as Category] : [])
+  ];
+
   const check = () => {
     let allCorrect = true;
     sentence.parts.forEach((p, i) => {
@@ -301,7 +366,7 @@ const GrammarExercise: React.FC<{ sentence: GrammarSentence, onValidate: (c: boo
     <div className="text-center">
       <h3 className="text-2xl sm:text-3xl font-title mb-6 sm:mb-8 text-indigo-700 leading-tight">Identifie chaque mot :</h3>
       <div className="flex flex-wrap justify-center gap-2 sm:gap-4 mb-8 sm:mb-12">
-        {(['determinant', 'nom', 'adjectif', 'verbe'] as const).map(cat => (
+        {availableCategories.map(cat => (
           <button
             key={cat}
             onClick={() => setSelectedCategory(cat)}
@@ -851,5 +916,472 @@ const TimeExercise: React.FC<{ task: TimeTask, onValidate: (c: boolean, v?: stri
     </div>
   );
 };
+
+const NounSortExercise: React.FC<{ task: NounSortTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-6 text-indigo-700">Ce mot est-il un nom commun ou un nom propre ?</h3>
+      <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 sm:p-12 mb-10">
+        <span className="text-4xl sm:text-6xl font-title text-indigo-900">{task.word}</span>
+      </div>
+      <div className="flex gap-4 justify-center">
+        <button onClick={() => onValidate(!task.isProper, 'Nom commun')}
+          className="flex-1 max-w-[200px] py-5 rounded-2xl bg-green-100 border-2 border-green-300 text-green-800 font-bold text-lg hover:bg-green-200 transition-all">
+          Nom commun 📗
+        </button>
+        <button onClick={() => onValidate(task.isProper, 'Nom propre')}
+          className="flex-1 max-w-[200px] py-5 rounded-2xl bg-purple-100 border-2 border-purple-300 text-purple-800 font-bold text-lg hover:bg-purple-200 transition-all">
+          Nom propre 🏛️
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const NounIdentifyExercise: React.FC<{ task: NounIdentifyTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+
+  useEffect(() => { setSelected(new Set()); }, [task]);
+
+  const toggle = (text: string) => {
+    setSelected(prev => {
+      const next = new Set(prev);
+      next.has(text) ? next.delete(text) : next.add(text);
+      return next;
+    });
+  };
+
+  const check = () => {
+    const nouns = task.words.filter(w => w.isNoun).map(w => w.text);
+    const allSelected = nouns.every(n => selected.has(n));
+    const noExtra = [...selected].every(s => nouns.includes(s));
+    const correct = allSelected && noExtra;
+    if (correct) setSelected(new Set());
+    onValidate(correct);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">Clique sur les noms :</h3>
+      <p className="text-sm text-gray-500 mb-8">Sélectionne tous les noms de la liste.</p>
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10 p-6 bg-indigo-50/50 rounded-3xl border-2 border-dashed border-indigo-100 min-h-[100px]">
+        {task.words.map((w, i) => (
+          <button key={i} onClick={() => toggle(w.text)}
+            className={`px-5 py-3 text-xl sm:text-2xl font-bold rounded-xl border-2 transition-all ${selected.has(w.text) ? 'bg-indigo-500 text-white border-indigo-700 scale-105' : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300'}`}>
+            {w.text}
+          </button>
+        ))}
+      </div>
+      <button onClick={check} disabled={selected.size === 0}
+        className={`w-full sm:w-auto px-10 py-4 rounded-2xl text-xl font-bold transition-all ${selected.size > 0 ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+        Vérifier 🔍
+      </button>
+    </div>
+  );
+};
+
+const PLURAL_RULE_LABELS: Record<string, string> = {
+  classique: 'Règle : ajouter -s',
+  'eau-au': 'Règle : -eau/-au → ajouter -x',
+  ou: 'Règle : certains mots en -ou → -oux (bijou, caillou, chou, genou, hibou, joujou, pou)',
+  ail: 'Règle : certains mots en -ail → -aux (travail, corail...)',
+};
+
+const NounPluralExercise: React.FC<{ task: NounPluralTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [value, setValue] = useState('');
+
+  useEffect(() => { setValue(''); }, [task]);
+
+  const check = () => {
+    const correct = value.trim().toLowerCase() === task.plural.toLowerCase();
+    if (correct) setValue('');
+    onValidate(correct, value);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">Mets ce nom au pluriel :</h3>
+      <p className="text-xs text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full inline-block mb-8">{PLURAL_RULE_LABELS[task.rule]}</p>
+      <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 sm:p-10 mb-8">
+        <span className="text-4xl sm:text-5xl font-title text-indigo-900">{task.singular}</span>
+      </div>
+      <div className="flex flex-col items-center gap-6">
+        <input
+          type="text" value={value} onChange={e => setValue(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && value.trim() && check()}
+          className="w-full max-w-sm text-2xl sm:text-3xl p-4 border-4 border-indigo-100 rounded-2xl text-center font-bold focus:border-indigo-400 outline-none"
+          placeholder="..." autoFocus
+        />
+        <button onClick={check} disabled={!value.trim()}
+          className={`w-full sm:w-auto px-12 py-4 rounded-2xl text-xl font-bold transition-all ${value.trim() ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+          Vérifier ✅
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const GENDER_RULE_LABELS: Record<string, string> = {
+  ien: 'Règle : -ien → -ienne (doubler le n)',
+  eur: 'Règle : -eur → -euse',
+  ier: 'Règle : -ier → -ière',
+  ion: 'Règle : -on/-ion → -onne/-ionne (doubler le n)',
+  ain: 'Règle : -ain → -aine',
+  e: 'Règle : ajouter un -e',
+};
+
+const NounGenderExercise: React.FC<{ task: NounGenderTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [value, setValue] = useState('');
+
+  useEffect(() => { setValue(''); }, [task]);
+
+  const check = () => {
+    const correct = value.trim().toLowerCase() === task.feminine.toLowerCase();
+    if (correct) setValue('');
+    onValidate(correct, value);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">Donne le féminin de ce nom :</h3>
+      <p className="text-xs text-indigo-600 bg-indigo-50 px-4 py-2 rounded-full inline-block mb-8">{GENDER_RULE_LABELS[task.rule]}</p>
+      <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 sm:p-10 mb-8">
+        <p className="text-xs text-gray-400 uppercase tracking-wider mb-2">Masculin</p>
+        <span className="text-4xl sm:text-5xl font-title text-indigo-900">{task.masculine}</span>
+      </div>
+      <div className="flex flex-col items-center gap-6">
+        <div className="flex items-center gap-4">
+          <span className="text-lg text-gray-400">→ Féminin :</span>
+          <input
+            type="text" value={value} onChange={e => setValue(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && value.trim() && check()}
+            className="text-2xl sm:text-3xl p-4 border-4 border-indigo-100 rounded-2xl text-center font-bold focus:border-indigo-400 outline-none w-48 sm:w-64"
+            placeholder="..." autoFocus
+          />
+        </div>
+        <button onClick={check} disabled={!value.trim()}
+          className={`w-full sm:w-auto px-12 py-4 rounded-2xl text-xl font-bold transition-all ${value.trim() ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+          Vérifier ✅
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// --- Exercices sur les verbes ---
+
+const VerbIdentifyExercise: React.FC<{ task: VerbIdentifyTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  useEffect(() => { setSelected(new Set()); }, [task]);
+
+  const toggle = (text: string) => setSelected(prev => {
+    const next = new Set(prev);
+    next.has(text) ? next.delete(text) : next.add(text);
+    return next;
+  });
+
+  const check = () => {
+    const verbs = task.words.filter(w => w.isVerb).map(w => w.text);
+    const correct = verbs.every(v => selected.has(v)) && [...selected].every(s => verbs.includes(s));
+    if (correct) setSelected(new Set());
+    onValidate(correct);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">Clique sur les verbes :</h3>
+      <p className="text-sm text-gray-500 mb-8">Sélectionne tous les verbes de la liste.</p>
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10 p-6 bg-indigo-50/50 rounded-3xl border-2 border-dashed border-indigo-100 min-h-[100px]">
+        {task.words.map((w, i) => (
+          <button key={i} onClick={() => toggle(w.text)}
+            className={`px-5 py-3 text-xl sm:text-2xl font-bold rounded-xl border-2 transition-all ${selected.has(w.text) ? 'bg-indigo-500 text-white border-indigo-700 scale-105' : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300'}`}>
+            {w.text}
+          </button>
+        ))}
+      </div>
+      <button onClick={check} disabled={selected.size === 0}
+        className={`w-full sm:w-auto px-10 py-4 rounded-2xl text-xl font-bold transition-all ${selected.size > 0 ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+        Vérifier 🔍
+      </button>
+    </div>
+  );
+};
+
+const VerbConjugatedExercise: React.FC<{ task: VerbConjugatedTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => (
+  <div className="text-center">
+    <h3 className="text-2xl sm:text-3xl font-title mb-6 text-indigo-700">Ce verbe est-il conjugué ?</h3>
+    <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 sm:p-12 mb-10">
+      <span className="text-4xl sm:text-6xl font-title text-indigo-900">{task.verbForm}</span>
+    </div>
+    <div className="flex gap-4 justify-center">
+      <button onClick={() => onValidate(task.isConjugated, 'Conjugué')}
+        className="flex-1 max-w-[200px] py-5 rounded-2xl bg-green-100 border-2 border-green-300 text-green-800 font-bold text-lg hover:bg-green-200 transition-all">
+        Conjugué ✅
+      </button>
+      <button onClick={() => onValidate(!task.isConjugated, 'Infinitif')}
+        className="flex-1 max-w-[200px] py-5 rounded-2xl bg-orange-100 border-2 border-orange-300 text-orange-800 font-bold text-lg hover:bg-orange-200 transition-all">
+        Infinitif ❌
+      </button>
+    </div>
+  </div>
+);
+
+const VerbInfinitiveExercise: React.FC<{ task: VerbInfinitiveTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [value, setValue] = useState('');
+  useEffect(() => { setValue(''); }, [task]);
+  const check = () => {
+    const correct = value.trim().toLowerCase() === task.infinitive.toLowerCase();
+    if (correct) setValue('');
+    onValidate(correct, value);
+  };
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">Quel est l'infinitif ?</h3>
+      {task.context && <p className="text-lg text-gray-500 italic mb-6 bg-indigo-50 px-6 py-3 rounded-2xl inline-block">"{task.context}"</p>}
+      <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-8">
+        <span className="text-4xl sm:text-5xl font-title text-indigo-900">{task.conjugatedForm}</span>
+      </div>
+      <div className="flex flex-col items-center gap-6">
+        <input type="text" value={value} onChange={e => setValue(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && value.trim() && check()}
+          className="w-full max-w-sm text-2xl sm:text-3xl p-4 border-4 border-indigo-100 rounded-2xl text-center font-bold focus:border-indigo-400 outline-none"
+          placeholder="..." autoFocus />
+        <button onClick={check} disabled={!value.trim()}
+          className={`w-full sm:w-auto px-12 py-4 rounded-2xl text-xl font-bold transition-all ${value.trim() ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+          Vérifier ✅
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const VerbTenseExercise: React.FC<{ task: VerbTenseTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => (
+  <div className="text-center">
+    <h3 className="text-2xl sm:text-3xl font-title mb-6 text-indigo-700">Cette phrase est au :</h3>
+    <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-10 mb-10">
+      <p className="text-2xl sm:text-3xl font-bold text-indigo-900 leading-relaxed">{task.sentence}</p>
+    </div>
+    <div className="flex flex-wrap gap-4 justify-center">
+      {(['passé', 'présent', 'futur'] as const).map(t => (
+        <button key={t} onClick={() => onValidate(task.tense === t, t)}
+          className={`flex-1 min-w-[110px] py-5 rounded-2xl font-bold text-lg border-2 transition-all hover:scale-105 ${
+            t === 'passé' ? 'bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200'
+            : t === 'présent' ? 'bg-green-100 border-green-300 text-green-800 hover:bg-green-200'
+            : 'bg-blue-100 border-blue-300 text-blue-800 hover:bg-blue-200'
+          }`}>
+          {t.charAt(0).toUpperCase() + t.slice(1)}{t === 'passé' ? ' ⏪' : t === 'présent' ? ' ▶️' : ' ⏩'}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const VerbConjugateExExercise: React.FC<{ task: VerbConjugateExTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [value, setValue] = useState('');
+  useEffect(() => { setValue(''); }, [task]);
+  const check = () => {
+    const correct = value.trim().toLowerCase() === task.answer.toLowerCase();
+    if (correct) setValue('');
+    onValidate(correct, value);
+  };
+  const tenseLabel: Record<string, string> = {
+    'présent': 'Présent', 'futur': 'Futur', 'imparfait': 'Imparfait', 'passé composé': 'Passé composé'
+  };
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">Conjugue ce verbe :</h3>
+      <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-8 flex flex-col gap-3">
+        <div className="flex justify-center gap-6 flex-wrap">
+          <div><span className="text-xs text-indigo-400 uppercase tracking-wider block">Verbe</span>
+            <span className="text-3xl sm:text-4xl font-title text-indigo-900">{task.infinitive}</span></div>
+          <div><span className="text-xs text-indigo-400 uppercase tracking-wider block">Temps</span>
+            <span className="text-xl sm:text-2xl font-bold text-indigo-700 bg-indigo-100 px-4 py-1 rounded-full">{tenseLabel[task.tense]}</span></div>
+        </div>
+      </div>
+      <div className="flex flex-col items-center gap-6">
+        <div className="flex items-center gap-4 flex-wrap justify-center">
+          <span className="text-3xl sm:text-4xl font-title text-indigo-800">{task.subject}</span>
+          <input type="text" value={value} onChange={e => setValue(e.target.value)}
+            onKeyDown={e => e.key === 'Enter' && value.trim() && check()}
+            className="text-2xl sm:text-3xl p-4 border-4 border-indigo-100 rounded-2xl text-center font-bold focus:border-indigo-400 outline-none w-48 sm:w-64"
+            placeholder="..." autoFocus />
+        </div>
+        <button onClick={check} disabled={!value.trim()}
+          className={`w-full sm:w-auto px-12 py-4 rounded-2xl text-xl font-bold transition-all ${value.trim() ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+          Vérifier ✅
+        </button>
+      </div>
+    </div>
+  );
+};
+
+// --- Exercices sur les déterminants ---
+
+const DetIdentifyExercise: React.FC<{ task: DetIdentifyTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  useEffect(() => { setSelected(new Set()); }, [task]);
+
+  const toggle = (text: string) => setSelected(prev => {
+    const next = new Set(prev);
+    next.has(text) ? next.delete(text) : next.add(text);
+    return next;
+  });
+
+  const check = () => {
+    const determiners = task.words.filter(w => w.isDeterminer).map(w => w.text);
+    const correct = determiners.every(d => selected.has(d)) && [...selected].every(s => determiners.includes(s));
+    if (correct) setSelected(new Set());
+    onValidate(correct);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">Clique sur les déterminants :</h3>
+      <p className="text-sm text-gray-500 mb-8">Sélectionne tous les déterminants de la liste.</p>
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10 p-6 bg-indigo-50/50 rounded-3xl border-2 border-dashed border-indigo-100 min-h-[100px]">
+        {task.words.map((w, i) => (
+          <button key={i} onClick={() => toggle(w.text)}
+            className={`px-5 py-3 text-xl sm:text-2xl font-bold rounded-xl border-2 transition-all ${selected.has(w.text) ? 'bg-indigo-500 text-white border-indigo-700 scale-105' : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300'}`}>
+            {w.text}
+          </button>
+        ))}
+      </div>
+      <button onClick={check} disabled={selected.size === 0}
+        className={`w-full sm:w-auto px-10 py-4 rounded-2xl text-xl font-bold transition-all ${selected.size > 0 ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+        Vérifier 🔍
+      </button>
+    </div>
+  );
+};
+
+const DetGenderExercise: React.FC<{ task: DetGenderTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => (
+  <div className="text-center">
+    <h3 className="text-2xl sm:text-3xl font-title mb-6 text-indigo-700">Ce déterminant est-il masculin ou féminin ?</h3>
+    <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 sm:p-12 mb-10">
+      <p className="text-4xl sm:text-5xl font-title text-indigo-900">{task.phrase}</p>
+    </div>
+    <div className="flex gap-4 justify-center">
+      <button onClick={() => onValidate(task.gender === 'masculin', 'Masculin')}
+        className="flex-1 max-w-[200px] py-5 rounded-2xl bg-blue-100 border-2 border-blue-300 text-blue-800 font-bold text-lg hover:bg-blue-200 transition-all">
+        Masculin 🔵
+      </button>
+      <button onClick={() => onValidate(task.gender === 'féminin', 'Féminin')}
+        className="flex-1 max-w-[200px] py-5 rounded-2xl bg-pink-100 border-2 border-pink-300 text-pink-800 font-bold text-lg hover:bg-pink-200 transition-all">
+        Féminin 🌸
+      </button>
+    </div>
+  </div>
+);
+
+const DetNumberExercise: React.FC<{ task: DetNumberTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => (
+  <div className="text-center">
+    <h3 className="text-2xl sm:text-3xl font-title mb-6 text-indigo-700">Ce déterminant est-il singulier ou pluriel ?</h3>
+    <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 sm:p-12 mb-10">
+      <p className="text-4xl sm:text-5xl font-title text-indigo-900">{task.phrase}</p>
+    </div>
+    <div className="flex gap-4 justify-center">
+      <button onClick={() => onValidate(task.number === 'singulier', 'Singulier')}
+        className="flex-1 max-w-[200px] py-5 rounded-2xl bg-amber-100 border-2 border-amber-300 text-amber-800 font-bold text-lg hover:bg-amber-200 transition-all">
+        Singulier 1️⃣
+      </button>
+      <button onClick={() => onValidate(task.number === 'pluriel', 'Pluriel')}
+        className="flex-1 max-w-[200px] py-5 rounded-2xl bg-purple-100 border-2 border-purple-300 text-purple-800 font-bold text-lg hover:bg-purple-200 transition-all">
+        Pluriel 🔢
+      </button>
+    </div>
+  </div>
+);
+
+const DetWriteExercise: React.FC<{ task: DetWriteTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [value, setValue] = useState('');
+  useEffect(() => { setValue(''); }, [task]);
+
+  const check = () => {
+    const correct = task.accepted.map(a => a.toLowerCase()).includes(value.trim().toLowerCase());
+    if (correct) setValue('');
+    onValidate(correct, value);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">Écris un déterminant devant ce nom :</h3>
+      <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 sm:p-10 mb-8">
+        <p className="text-xs text-indigo-400 uppercase tracking-wider mb-2">{task.hint}</p>
+        <span className="text-4xl sm:text-5xl font-title text-indigo-900">{task.noun}</span>
+      </div>
+      <div className="flex flex-col items-center gap-6">
+        <input
+          type="text" value={value} onChange={e => setValue(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && value.trim() && check()}
+          className="w-full max-w-sm text-2xl sm:text-3xl p-4 border-4 border-indigo-100 rounded-2xl text-center font-bold focus:border-indigo-400 outline-none"
+          placeholder="..." autoFocus
+        />
+        <button onClick={check} disabled={!value.trim()}
+          className={`w-full sm:w-auto px-12 py-4 rounded-2xl text-xl font-bold transition-all ${value.trim() ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+          Valider ✅
+        </button>
+      </div>
+    </div>
+  );
+};
+
+const DetChooseExercise: React.FC<{ task: DetChooseTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  useEffect(() => { setSelected(new Set()); }, [task]);
+
+  const toggle = (opt: string) => setSelected(prev => {
+    const next = new Set(prev);
+    next.has(opt) ? next.delete(opt) : next.add(opt);
+    return next;
+  });
+
+  const check = () => {
+    const allCorrectSelected = task.correct.every(c => selected.has(c));
+    const noWrongSelected = [...selected].every(s => task.correct.includes(s));
+    const correct = allCorrectSelected && noWrongSelected;
+    if (correct) setSelected(new Set());
+    onValidate(correct);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">Sélectionne les déterminants qui conviennent :</h3>
+      <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-8">
+        <span className="text-4xl sm:text-5xl font-title text-indigo-900">___ {task.noun}</span>
+      </div>
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10 p-6 bg-indigo-50/50 rounded-3xl border-2 border-dashed border-indigo-100 min-h-[100px]">
+        {task.options.map((opt, i) => (
+          <button key={i} onClick={() => toggle(opt)}
+            className={`px-5 py-3 text-xl sm:text-2xl font-bold rounded-xl border-2 transition-all ${selected.has(opt) ? 'bg-indigo-500 text-white border-indigo-700 scale-105' : 'bg-white text-gray-700 border-gray-200 hover:border-indigo-300'}`}>
+            {opt}
+          </button>
+        ))}
+      </div>
+      <button onClick={check} disabled={selected.size === 0}
+        className={`w-full sm:w-auto px-10 py-4 rounded-2xl text-xl font-bold transition-all ${selected.size > 0 ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+        Vérifier ✅
+      </button>
+    </div>
+  );
+};
+
+const DetArticleSortExercise: React.FC<{ task: DetArticleSortTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => (
+  <div className="text-center">
+    <h3 className="text-2xl sm:text-3xl font-title mb-6 text-indigo-700">Cet article est-il défini ou indéfini ?</h3>
+    <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 sm:p-12 mb-10 flex items-center justify-center">
+      <span className="text-5xl sm:text-7xl font-title text-indigo-900">{task.article}</span>
+    </div>
+    <div className="flex gap-4 justify-center">
+      <button onClick={() => onValidate(task.type === 'défini', 'Défini')}
+        className="flex-1 max-w-[200px] py-5 rounded-2xl bg-teal-100 border-2 border-teal-300 text-teal-800 font-bold text-lg hover:bg-teal-200 transition-all">
+        Défini ✅
+      </button>
+      <button onClick={() => onValidate(task.type === 'indéfini', 'Indéfini')}
+        className="flex-1 max-w-[200px] py-5 rounded-2xl bg-orange-100 border-2 border-orange-300 text-orange-800 font-bold text-lg hover:bg-orange-200 transition-all">
+        Indéfini ❓
+      </button>
+    </div>
+  </div>
+);
 
 export default ExerciseRunner;

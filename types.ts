@@ -1,6 +1,6 @@
 export type Level = 'CE1' | 'CE2' | 'CM1' | 'CM2';
 
-export type Category = 'verbe' | 'nom' | 'determinant' | 'adjectif' | 'none';
+export type Category = 'verbe' | 'nom' | 'determinant' | 'adjectif' | 'pronom' | 'adverbe' | 'none';
 
 export interface WordPart {
   text: string;
@@ -60,5 +60,128 @@ export interface TimeTask {
   type: 'read_time' | 'set_time';
   time: string; // "14:30"
   question: string;
+  level: Level;
+}
+
+// Exercices sur les noms
+export interface NounSortTask {
+  id: number;
+  word: string;
+  isProper: boolean; // true = nom propre, false = nom commun
+  level: Level;
+}
+
+export interface NounIdentifyWord {
+  text: string;
+  isNoun: boolean;
+}
+
+export interface NounIdentifyTask {
+  id: number;
+  words: NounIdentifyWord[];
+  level: Level;
+}
+
+export type PluralRule = 'classique' | 'eau-au' | 'ou' | 'ail';
+
+export interface NounPluralTask {
+  id: number;
+  singular: string;
+  plural: string;
+  rule: PluralRule;
+  level: Level;
+}
+
+export type GenderRule = 'ien' | 'eur' | 'ier' | 'ion' | 'ain' | 'e';
+
+export interface NounGenderTask {
+  id: number;
+  masculine: string;
+  feminine: string;
+  rule: GenderRule;
+  level: Level;
+}
+
+// Exercices sur les verbes
+export interface VerbIdentifyTask {
+  id: number;
+  words: { text: string; isVerb: boolean }[];
+  level: Level;
+}
+
+export interface VerbConjugatedTask {
+  id: number;
+  verbForm: string;
+  isConjugated: boolean;
+  level: Level;
+}
+
+export interface VerbInfinitiveTask {
+  id: number;
+  conjugatedForm: string;
+  infinitive: string;
+  context?: string;
+  level: Level;
+}
+
+export type VerbTense = 'passé' | 'présent' | 'futur';
+
+export interface VerbTenseTask {
+  id: number;
+  sentence: string;
+  tense: VerbTense;
+  level: Level;
+}
+
+export interface VerbConjugateExTask {
+  id: number;
+  infinitive: string;
+  subject: string;
+  grammaticalPerson: string;
+  tense: Tense;
+  answer: string;
+  level: Level;
+}
+
+// Exercices sur les déterminants
+export interface DetIdentifyWord {
+  text: string;
+  isDeterminer: boolean;
+}
+export interface DetIdentifyTask {
+  id: number;
+  words: DetIdentifyWord[];
+  level: Level;
+}
+export interface DetGenderTask {
+  id: number;
+  phrase: string;
+  gender: 'masculin' | 'féminin';
+  level: Level;
+}
+export interface DetNumberTask {
+  id: number;
+  phrase: string;
+  number: 'singulier' | 'pluriel';
+  level: Level;
+}
+export interface DetWriteTask {
+  id: number;
+  noun: string;
+  hint: string;
+  accepted: string[];
+  level: Level;
+}
+export interface DetChooseTask {
+  id: number;
+  noun: string;
+  options: string[];
+  correct: string[];
+  level: Level;
+}
+export interface DetArticleSortTask {
+  id: number;
+  article: string;
+  type: 'défini' | 'indéfini';
   level: Level;
 }
