@@ -205,3 +205,47 @@ export interface SpellingChoiceTask {
   rule: 'ortho-s-ss' | 'ortho-n-m' | 'ortho-c-cedilla' | 'ortho-g-ge' | 'ortho-g-gu';
   level: Level;
 }
+
+// Exercices de vocabulaire
+export interface VocabAlphaTask {
+  id: number;
+  items: string[];   // lettres ou mots dans l'ordre mélangé
+  sorted: string[];  // ordre alphabétique correct
+  level: Level;
+}
+
+export interface VocabSynonymTask {
+  id: number;
+  word: string;
+  options: string[];   // mélange de synonymes et non-synonymes (6-8 mots)
+  synonyms: string[];  // sous-ensemble correct des options
+  level: Level;
+}
+
+export interface VocabIntrusTask {
+  id: number;
+  word: string;
+  options: string[];  // liste dont un seul n'est PAS synonyme
+  intrus: string;     // le mot intrus
+  level: Level;
+}
+
+export interface VocabContraireTask {
+  id: number;
+  word: string;
+  options: string[];  // 4 choix dont 1 seul est le contraire
+  answer: string;
+  level: Level;
+}
+
+export interface VocabFamilyWord {
+  text: string;
+  isSameFamily: boolean;
+}
+
+export interface VocabFamilyTask {
+  id: number;
+  baseWord: string;
+  words: VocabFamilyWord[];  // mix famille + hors famille (8-10 mots)
+  level: Level;
+}

@@ -6,7 +6,7 @@ const App: React.FC = () => {
   const [level, setLevel] = useState<Level | null>(null);
   const [subject, setSubject] = useState<'français' | 'maths' | 'autre' | null>(null);
   const [exerciseType, setExerciseType] = useState<string | null>(null);
-  const [gameState, setGameState] = useState<'intro' | 'configuringMath' | 'configuringDictation' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'playing' | 'summary'>('intro');
+  const [gameState, setGameState] = useState<'intro' | 'configuringMath' | 'configuringDictation' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'playing' | 'summary'>('intro');
   const [lastScore, setLastScore] = useState(0);
   const [timerDuration, setTimerDuration] = useState(4);
   const [selectedTables, setSelectedTables] = useState<number[]>([]);
@@ -32,6 +32,8 @@ const App: React.FC = () => {
       setGameState('playing');
     } else if (type.startsWith('ortho-')) {
       setGameState('playing');
+    } else if (type.startsWith('vocab-')) {
+      // handled directly from menu
     } else {
       setGameState('playing');
       setTotalQuestions(5);
@@ -423,6 +425,49 @@ const App: React.FC = () => {
     );
   }
 
+  if (gameState === 'vocabulaireMenu') {
+    const exercises = [
+      { type: 'vocab-alpha-lettres', emoji: '🔤', label: "Ordre alphabétique (lettres)", desc: "Range des lettres dans l'ordre alphabétique." },
+      { type: 'vocab-alpha-mots', emoji: '📋', label: "Ordre alphabétique (mots)", desc: "Range des mots dans l'ordre alphabétique." },
+      { type: 'vocab-synonymes', emoji: '🔗', label: "Synonymes", desc: "Identifie les synonymes d'un mot." },
+      { type: 'vocab-intrus', emoji: '🔎', label: "L'intrus", desc: "Trouve le mot qui n'est pas synonyme." },
+      { type: 'vocab-contraires', emoji: '↔️', label: "Contraires", desc: "Identifie le contraire d'un mot." },
+      { type: 'vocab-famille', emoji: '🌳', label: "Famille de mots", desc: "Clique sur les mots de la même famille." },
+    ];
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
+        <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Exercices de vocabulaire 🔤</h2>
+          <p className="text-gray-500 text-sm mb-8">Choisis un exercice :</p>
+          <div className="grid sm:grid-cols-2 gap-4 mb-8">
+            {exercises.map(ex => (
+              <button key={ex.type}
+                onClick={() => { setSubject('français'); setExerciseType(ex.type); setGameState('playing'); }}
+                className="p-6 rounded-2xl bg-green-50 border-2 border-green-200 hover:bg-green-100 text-left transition-all">
+                <div className="text-2xl mb-2">{ex.emoji}</div>
+                <h3 className="font-bold text-green-700 text-lg">{ex.label}</h3>
+                <p className="text-sm text-green-600/70 mt-1">{ex.desc}</p>
+              </button>
+            ))}
+          </div>
+          <div className="mb-6 p-4 rounded-2xl bg-green-50 border border-green-100">
+            <p className="text-green-700 font-bold uppercase text-xs tracking-wider mb-3">Nombre de questions :</p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {[3, 5, 8, 10].map(n => (
+                <button key={n} onClick={() => setTotalQuestions(n)}
+                  className={`px-6 py-2 rounded-xl font-bold transition-all border-2 ${totalQuestions === n ? 'bg-green-600 text-white border-green-700' : 'bg-white text-green-600 border-green-200 hover:bg-green-50'}`}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={reset} className="w-full py-3 rounded-2xl bg-white border-2 border-gray-200 text-gray-400 font-bold hover:bg-gray-50">← Retour</button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
   if (gameState === 'playing' && subject && exerciseType) {
     return (
       <div className="min-h-screen p-4 sm:p-6 bg-indigo-50">
@@ -598,6 +643,14 @@ const App: React.FC = () => {
               <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Exercices d'orthographe</h3>
               <p className="text-sm sm:text-base text-green-600/70">Lettres muettes, s/ss, n/m, c/ç, g/ge, g/gu.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">✏️</span>
+            </button>
+            <button
+              onClick={() => setGameState('vocabulaireMenu')}
+              className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
+            >
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Exercices de vocabulaire</h3>
+              <p className="text-sm sm:text-base text-green-600/70">Alphabet, synonymes, contraires, familles de mots.</p>
+              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">🔤</span>
             </button>
           </div>
         </div>

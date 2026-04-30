@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
-import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask } from '../types';
-import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions, getSilentLetterQuestions, getSpellingChoiceQuestions } from '../data';
+import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, VocabFamilyWord } from '../types';
+import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions, getSilentLetterQuestions, getSpellingChoiceQuestions, getVocabAlphaLettersQuestions, getVocabAlphaWordsQuestions, getVocabSynonymQuestions, getVocabIntrusQuestions, getVocabContraireQuestions, getVocabFamilyQuestions } from '../data';
 import { CATEGORY_COLORS, CATEGORY_LABELS, TIMINGS } from '../constants';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -63,6 +63,12 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
       else if (type === 'det-articles') q = getDetArticleQuestions(level, totalQuestions);
       else if (type === 'ortho-lettre-muette') q = getSilentLetterQuestions(level, totalQuestions);
       else if (type.startsWith('ortho-')) q = getSpellingChoiceQuestions(type, level, totalQuestions);
+      else if (type === 'vocab-alpha-lettres') q = getVocabAlphaLettersQuestions(level, totalQuestions);
+      else if (type === 'vocab-alpha-mots') q = getVocabAlphaWordsQuestions(level, totalQuestions);
+      else if (type === 'vocab-synonymes') q = getVocabSynonymQuestions(level, totalQuestions);
+      else if (type === 'vocab-intrus') q = getVocabIntrusQuestions(level, totalQuestions);
+      else if (type === 'vocab-contraires') q = getVocabContraireQuestions(level, totalQuestions);
+      else if (type === 'vocab-famille') q = getVocabFamilyQuestions(level, totalQuestions);
     } else if (subject === 'autre') {
       if (type === 'time') q = getTimeQuestions(level, totalQuestions);
     } else {
@@ -215,6 +221,16 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
                             ? `La lettre muette est : "${(current as SilentLetterTask).answer}"`
                           : type.startsWith('ortho-')
                             ? (current as SpellingChoiceTask).answer
+                          : type === 'vocab-alpha-lettres' || type === 'vocab-alpha-mots'
+                            ? (current as VocabAlphaTask).sorted.join(' → ')
+                          : type === 'vocab-synonymes'
+                            ? 'Synonymes : ' + (current as VocabSynonymTask).synonyms.join(', ')
+                          : type === 'vocab-intrus'
+                            ? "L'intrus : " + (current as VocabIntrusTask).intrus
+                          : type === 'vocab-contraires'
+                            ? 'Contraire : ' + (current as VocabContraireTask).answer
+                          : type === 'vocab-famille'
+                            ? 'Famille de "' + (current as VocabFamilyTask).baseWord + '" : ' + (current as VocabFamilyTask).words.filter((w: VocabFamilyWord) => w.isSameFamily).map((w: VocabFamilyWord) => w.text).join(', ')
                           : String(current.correctAnswer || current.answer || current.sentence || (current as TimeTask).time || '...')
               }
             </div>
@@ -270,6 +286,11 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
         {type === 'det-articles' && <DetArticleSortExercise task={current as DetArticleSortTask} onValidate={handleValidation} />}
         {type === 'ortho-lettre-muette' && <SilentLetterExercise task={current as SilentLetterTask} onValidate={handleValidation} />}
         {type.startsWith('ortho-') && type !== 'ortho-lettre-muette' && <SpellingChoiceExercise task={current as SpellingChoiceTask} onValidate={handleValidation} />}
+        {(type === 'vocab-alpha-lettres' || type === 'vocab-alpha-mots') && <VocabAlphaExercise task={current as VocabAlphaTask} type={type} onValidate={handleValidation} />}
+        {type === 'vocab-synonymes' && <VocabSynonymExercise task={current as VocabSynonymTask} onValidate={handleValidation} />}
+        {type === 'vocab-intrus' && <VocabIntrusExercise task={current as VocabIntrusTask} onValidate={handleValidation} />}
+        {type === 'vocab-contraires' && <VocabContraireExercise task={current as VocabContraireTask} onValidate={handleValidation} />}
+        {type === 'vocab-famille' && <VocabFamilleExercise task={current as VocabFamilyTask} onValidate={handleValidation} />}
         {subject === 'maths' && (
           <MathDisplay
             task={current as MathTask}
@@ -1445,4 +1466,193 @@ const SpellingChoiceExercise: React.FC<{ task: SpellingChoiceTask; onValidate: (
     </div>
   </div>
 );
+
+// --- Exercices de vocabulaire ---
+
+const VocabSortableItem: React.FC<{ id: string }> = ({ id }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    zIndex: isDragging ? 50 : ('auto' as const),
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className={`bg-white px-4 py-3 sm:px-6 sm:py-4 text-lg sm:text-2xl font-title rounded-2xl border-2 sm:border-4 border-indigo-100 shadow-lg cursor-grab active:cursor-grabbing ${isDragging ? 'opacity-50 scale-105 shadow-2xl ring-4 ring-indigo-300' : ''}`}
+    >
+      {id}
+    </div>
+  );
+};
+
+const VocabAlphaExercise: React.FC<{ task: VocabAlphaTask; type: string; onValidate: (c: boolean, v?: string) => void }> = ({ task, type, onValidate }) => {
+  const [orderedItems, setOrderedItems] = useState<string[]>([...task.items]);
+
+  useEffect(() => { setOrderedItems([...task.items]); }, [task]);
+
+  const alphaSensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance: 8 } }),
+    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
+  );
+
+  const handleAlphaDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setOrderedItems(items => {
+        const oldIndex = items.indexOf(active.id as string);
+        const newIndex = items.indexOf(over.id as string);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  };
+
+  const check = () => {
+    onValidate(orderedItems.join(',') === task.sorted.join(','));
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-6 text-indigo-700">
+        {type === 'vocab-alpha-lettres' ? "Range ces lettres dans l'ordre alphabétique :" : "Range ces mots dans l'ordre alphabétique :"}
+      </h3>
+      <DndContext sensors={alphaSensors} collisionDetection={closestCenter} onDragEnd={handleAlphaDragEnd}>
+        <SortableContext items={orderedItems} strategy={horizontalListSortingStrategy}>
+          <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10 p-6 bg-indigo-50/50 rounded-3xl border-2 border-dashed border-indigo-100 min-h-[100px] touch-none">
+            {orderedItems.map(item => (
+              <VocabSortableItem key={item} id={item} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+      <button onClick={check} className="w-full sm:w-auto bg-indigo-600 text-white px-12 sm:px-16 py-4 sm:py-5 rounded-2xl sm:rounded-3xl text-xl sm:text-2xl font-bold hover:bg-indigo-700 shadow-xl transition-all">
+        Vérifier 🔤
+      </button>
+    </div>
+  );
+};
+
+const VocabSynonymExercise: React.FC<{ task: VocabSynonymTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  useEffect(() => { setSelected(new Set()); }, [task]);
+
+  const toggle = (opt: string) => setSelected(prev => {
+    const next = new Set(prev);
+    next.has(opt) ? next.delete(opt) : next.add(opt);
+    return next;
+  });
+
+  const check = () => {
+    const allCorrect = task.synonyms.every(s => selected.has(s)) && [...selected].every(s => task.synonyms.includes(s));
+    if (allCorrect) setSelected(new Set());
+    onValidate(allCorrect);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">
+        Quels mots sont des synonymes de &ldquo;
+        <span className="text-indigo-900">{task.word}</span>&rdquo;&nbsp;?
+      </h3>
+      <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-8 inline-block">
+        <span className="text-4xl sm:text-5xl font-title text-indigo-900">{task.word}</span>
+      </div>
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10 p-6 bg-indigo-50/50 rounded-3xl border-2 border-dashed border-indigo-100 min-h-[100px]">
+        {task.options.map((opt, i) => (
+          <button key={i} onClick={() => toggle(opt)}
+            className={`px-5 py-3 text-xl sm:text-2xl font-bold rounded-xl border-2 transition-all ${selected.has(opt) ? 'bg-indigo-500 text-white border-indigo-700 scale-105' : 'bg-white border-gray-200 text-gray-700 hover:border-indigo-300'}`}>
+            {opt}
+          </button>
+        ))}
+      </div>
+      <button onClick={check} disabled={selected.size === 0}
+        className={`w-full sm:w-auto px-10 py-4 rounded-2xl text-xl font-bold transition-all ${selected.size > 0 ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+        Vérifier 🔗
+      </button>
+    </div>
+  );
+};
+
+const VocabIntrusExercise: React.FC<{ task: VocabIntrusTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => (
+  <div className="text-center">
+    <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">
+      Quel mot n&apos;est PAS synonyme de &ldquo;{task.word}&rdquo;&nbsp;?
+    </h3>
+    <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-8 inline-block">
+      <span className="text-4xl sm:text-5xl font-title text-indigo-900">{task.word}</span>
+    </div>
+    <div className="flex flex-wrap justify-center gap-4 sm:gap-6">
+      {task.options.map((opt, i) => (
+        <button key={i} onClick={() => onValidate(opt === task.intrus, opt)}
+          className="bg-white border-2 border-indigo-200 text-indigo-700 font-bold rounded-2xl px-6 py-4 hover:bg-red-50 hover:border-red-300 transition-all text-lg sm:text-xl">
+          {opt}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const VocabContraireExercise: React.FC<{ task: VocabContraireTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => (
+  <div className="text-center">
+    <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">
+      Quel est le contraire de &ldquo;{task.word}&rdquo;&nbsp;?
+    </h3>
+    <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-10 inline-block">
+      <span className="text-4xl sm:text-5xl font-title text-indigo-900">{task.word}</span>
+    </div>
+    <div className="grid grid-cols-2 gap-4 max-w-sm mx-auto">
+      {task.options.map((opt, i) => (
+        <button key={i} onClick={() => onValidate(opt === task.answer, opt)}
+          className="py-5 rounded-2xl bg-white border-2 border-indigo-200 text-indigo-700 font-bold text-lg sm:text-xl hover:bg-indigo-50 hover:border-indigo-400 transition-all">
+          {opt}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const VocabFamilleExercise: React.FC<{ task: VocabFamilyTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  useEffect(() => { setSelected(new Set()); }, [task]);
+
+  const toggle = (text: string) => setSelected(prev => {
+    const next = new Set(prev);
+    next.has(text) ? next.delete(text) : next.add(text);
+    return next;
+  });
+
+  const check = () => {
+    const family = task.words.filter(w => w.isSameFamily).map(w => w.text);
+    const allCorrect = family.every(f => selected.has(f)) && [...selected].every(s => family.includes(s));
+    if (allCorrect) setSelected(new Set());
+    onValidate(allCorrect);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-4 text-indigo-700">
+        Clique sur les mots de la même famille que &ldquo;{task.baseWord}&rdquo;&nbsp;:
+      </h3>
+      <div className="bg-indigo-500 text-white rounded-3xl px-8 py-4 mb-8 inline-block">
+        <span className="text-4xl sm:text-5xl font-title">{task.baseWord}</span>
+      </div>
+      <div className="flex flex-wrap justify-center gap-3 sm:gap-4 mb-10 p-6 bg-indigo-50/50 rounded-3xl border-2 border-dashed border-indigo-100 min-h-[100px]">
+        {task.words.map((w, i) => (
+          <button key={i} onClick={() => toggle(w.text)}
+            className={`px-5 py-3 text-lg sm:text-xl font-bold rounded-xl border-2 transition-all ${selected.has(w.text) ? 'bg-indigo-500 text-white border-indigo-700 scale-105' : 'bg-white border-gray-200 text-gray-700 hover:border-indigo-300'}`}>
+            {w.text}
+          </button>
+        ))}
+      </div>
+      <button onClick={check} disabled={selected.size === 0}
+        className={`w-full sm:w-auto px-10 py-4 rounded-2xl text-xl font-bold transition-all ${selected.size > 0 ? 'bg-indigo-600 text-white hover:bg-indigo-700' : 'bg-gray-200 text-gray-400 cursor-not-allowed'}`}>
+        Vérifier 🌳
+      </button>
+    </div>
+  );
+};
+
 export default ExerciseRunner;

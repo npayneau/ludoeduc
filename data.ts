@@ -1,4 +1,4 @@
-import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask, NounSortTask, NounIdentifyTask, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask } from './types';
+import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask, NounSortTask, NounIdentifyTask, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask } from './types';
 import { SENTENCE_DATABASE } from './database/sentences';
 import { VERB_DATABASE } from './database/verbs';
 import { MATH_DATABASE } from './database/math';
@@ -7,6 +7,7 @@ import { NOUN_SORT_DATABASE, NOUN_IDENTIFY_DATABASE, NOUN_PLURAL_DATABASE, NOUN_
 import { VERB_IDENTIFY_DATABASE, VERB_CONJUGATED_DATABASE, VERB_INFINITIVE_DATABASE, VERB_TENSE_DATABASE } from './database/verb-exercises';
 import { DET_IDENTIFY_DATABASE, DET_GENDER_DATABASE, DET_NUMBER_DATABASE, DET_WRITE_DATABASE, DET_CHOOSE_DATABASE, DET_ARTICLE_DATABASE } from './database/determiners';
 import { SILENT_LETTER_DATABASE, SPELLING_CHOICE_DATABASE } from './database/spelling';
+import { VOCAB_ALPHA_LETTERS_DATABASE, VOCAB_ALPHA_WORDS_DATABASE, VOCAB_SYNONYM_DATABASE, VOCAB_INTRUS_DATABASE, VOCAB_CONTRAIRE_DATABASE, VOCAB_FAMILY_DATABASE } from './database/vocabulary';
 
 /**
  * Sélectionne X phrases au hasard pour un niveau donné (Grammaire).
@@ -287,3 +288,23 @@ export const getSpellingChoiceQuestions = (rule: string, level: Level, limit: nu
     .sort(() => 0.5 - Math.random())
     .slice(0, limit);
 };
+
+const vocabLevels = (level: Level) => level === 'CE1' ? ['CE1'] : ['CE1', 'CE2'];
+
+export const getVocabAlphaLettersQuestions = (level: Level, limit: number): VocabAlphaTask[] =>
+  VOCAB_ALPHA_LETTERS_DATABASE.filter(t => vocabLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getVocabAlphaWordsQuestions = (level: Level, limit: number): VocabAlphaTask[] =>
+  VOCAB_ALPHA_WORDS_DATABASE.filter(t => vocabLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getVocabSynonymQuestions = (level: Level, limit: number): VocabSynonymTask[] =>
+  VOCAB_SYNONYM_DATABASE.filter(t => vocabLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getVocabIntrusQuestions = (level: Level, limit: number): VocabIntrusTask[] =>
+  VOCAB_INTRUS_DATABASE.filter(t => vocabLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getVocabContraireQuestions = (level: Level, limit: number): VocabContraireTask[] =>
+  VOCAB_CONTRAIRE_DATABASE.filter(t => vocabLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getVocabFamilyQuestions = (level: Level, limit: number): VocabFamilyTask[] =>
+  VOCAB_FAMILY_DATABASE.filter(t => vocabLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
