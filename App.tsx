@@ -182,64 +182,46 @@ const App: React.FC = () => {
   }
 
   if (gameState === 'phraseMenu') {
+    const phraseExercises = [
+      { type: 'grammaire',          emoji: '🖍️', label: 'Nature des mots',   desc: 'Identifie les classes grammaticales.',        direct: true },
+      { type: 'phrase-type',        emoji: '❓',  label: 'Type de phrase',     desc: 'Déclarative, impérative ou interrogative ?' },
+      { type: 'phrase-ponctuation', emoji: '🔚',  label: 'Ponctuation',        desc: 'Complète avec le bon signe de ponctuation.' },
+      { type: 'phrase-ordre',       emoji: '🔀',  label: 'Ordre des mots',     desc: 'Remets les mots dans le bon ordre.' },
+      { type: 'phrase-valide',      emoji: '✅',  label: 'Phrase correcte ?',  desc: 'Identifie les phrases bien formées.' },
+    ];
     return (
-      <div className="min-h-screen bg-green-50 flex flex-col">
-        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
-          <div className="w-full max-w-2xl">
-            <div className="flex items-center gap-4 mb-8">
-              <button
-                onClick={reset}
-                className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border-2 border-green-200 text-green-700 hover:bg-green-100 transition-all font-semibold"
-              >
-                ← Retour
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
+        <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Exercices sur la phrase 📜</h2>
+          <p className="text-gray-500 text-sm mb-8">Choisis un exercice :</p>
+          <div className="grid sm:grid-cols-2 gap-4 mb-8">
+            {phraseExercises.map(item => (
+              <button key={item.type}
+                onClick={() => {
+                  if (item.direct) { startExercise('français', item.type); }
+                  else { setSubject('français'); setExerciseType(item.type); setGameState('playing'); }
+                }}
+                className="p-6 rounded-2xl bg-green-50 border-2 border-green-200 hover:bg-green-100 text-left transition-all">
+                <div className="text-2xl mb-2">{item.emoji}</div>
+                <h3 className="font-bold text-green-700 text-lg">{item.label}</h3>
+                <p className="text-sm text-green-600/70 mt-1">{item.desc}</p>
               </button>
-              <h2 className="text-2xl sm:text-3xl font-bold text-green-700">Exercices sur la phrase</h2>
-            </div>
-
-            <div className="mb-6">
-              <p className="text-green-700 font-semibold mb-3">Nombre de questions :</p>
-              <div className="flex gap-3">
-                {[3, 5, 8, 10].map(n => (
-                  <button
-                    key={n}
-                    onClick={() => setTotalQuestions(n)}
-                    className={`px-4 py-2 rounded-xl font-bold border-2 transition-all ${totalQuestions === n ? 'bg-green-500 border-green-600 text-white' : 'bg-white border-green-200 text-green-700 hover:bg-green-100'}`}
-                  >
-                    {n}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <div className="grid gap-4">
-              {[
-                { type: 'grammaire', emoji: '🖍️', label: 'Nature des mots', desc: 'Identifie les classes grammaticales.', direct: true },
-                { type: 'phrase-type', emoji: '❓', label: 'Type de phrase', desc: 'Déclarative, impérative ou interrogative ?' },
-                { type: 'phrase-ponctuation', emoji: '🔚', label: 'Ponctuation', desc: 'Complète avec le bon signe de ponctuation.' },
-                { type: 'phrase-ordre', emoji: '🔀', label: 'Ordre des mots', desc: 'Remets les mots dans le bon ordre.' },
-                { type: 'phrase-valide', emoji: '✅', label: 'Phrase correcte ?', desc: 'Identifie les phrases bien formées.' },
-              ].map(item => (
-                <button
-                  key={item.type}
-                  onClick={() => {
-                    if (item.direct) {
-                      startExercise('français', item.type);
-                    } else {
-                      setSubject('français');
-                      setExerciseType(item.type);
-                      setGameState('playing');
-                    }
-                  }}
-                  className="group relative p-6 rounded-3xl bg-white border-2 border-green-100 hover:border-green-400 hover:bg-green-50 transition-all text-left"
-                >
-                  <h3 className="text-xl font-bold text-green-700 mb-1">{item.label}</h3>
-                  <p className="text-sm text-green-600/70">{item.desc}</p>
-                  <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">{item.emoji}</span>
+            ))}
+          </div>
+          <div className="mb-6 p-4 rounded-2xl bg-green-50 border border-green-100">
+            <p className="text-green-700 font-bold uppercase text-xs tracking-wider mb-3">Nombre de questions :</p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {[3, 5, 8, 10].map(n => (
+                <button key={n} onClick={() => setTotalQuestions(n)}
+                  className={`px-6 py-2 rounded-xl font-bold transition-all border-2 ${totalQuestions === n ? 'bg-green-600 text-white border-green-700' : 'bg-white text-green-600 border-green-200 hover:bg-green-50'}`}>
+                  {n}
                 </button>
               ))}
             </div>
           </div>
+          <button onClick={reset} className="w-full py-3 rounded-2xl bg-white border-2 border-gray-200 text-gray-400 font-bold hover:bg-gray-50">← Retour</button>
         </div>
+        <Footer />
       </div>
     );
   }
