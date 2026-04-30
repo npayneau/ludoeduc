@@ -1,17 +1,74 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Level, MathType } from './types';
 import ExerciseRunner from './components/ExerciseRunner';
+
+type GameState = 'intro' | 'configuringMath' | 'configuringDictation' | 'dicteeMenu' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'phraseMenu' | 'playing' | 'summary';
+
+const BASE = '/ludoeduc';
+const getHistoryPath = (gs: GameState, et: string | null): string => {
+  if (gs === 'configuringMath') return `${BASE}/maths/config`;
+  if (gs === 'configuringDictation') return `${BASE}/francais/dictee/config`;
+  if (gs === 'dicteeMenu') return `${BASE}/francais/dictee`;
+  if (gs === 'nomsMenu') return `${BASE}/francais/noms`;
+  if (gs === 'nomsMenuPluriel') return `${BASE}/francais/noms/pluriel`;
+  if (gs === 'nomsMenuGenre') return `${BASE}/francais/noms/genre`;
+  if (gs === 'verbesMenu') return `${BASE}/francais/verbes`;
+  if (gs === 'determineursMenu') return `${BASE}/francais/determinants`;
+  if (gs === 'orthographeMenu') return `${BASE}/francais/orthographe`;
+  if (gs === 'vocabulaireMenu') return `${BASE}/francais/vocabulaire`;
+  if (gs === 'phraseMenu') return `${BASE}/francais/phrase`;
+  if (gs === 'playing') return `${BASE}/playing/${et ?? ''}`;
+  if (gs === 'summary') return `${BASE}/summary`;
+  return `${BASE}/`;
+};
 
 const App: React.FC = () => {
   const [level, setLevel] = useState<Level | null>(null);
   const [subject, setSubject] = useState<'français' | 'maths' | 'autre' | null>(null);
   const [exerciseType, setExerciseType] = useState<string | null>(null);
-  const [gameState, setGameState] = useState<'intro' | 'configuringMath' | 'configuringDictation' | 'dicteeMenu' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'phraseMenu' | 'playing' | 'summary'>('intro');
+  const [gameState, setGameState] = useState<GameState>('intro');
   const [lastScore, setLastScore] = useState(0);
   const [timerDuration, setTimerDuration] = useState(4);
   const [selectedTables, setSelectedTables] = useState<number[]>([]);
   const [additionMax, setAdditionMax] = useState<number>(10);
   const [totalQuestions, setTotalQuestions] = useState(5);
+
+  const isPoppingState = useRef(false);
+  const isFirstRender = useRef(true);
+
+  // Push a history entry on every meaningful navigation change
+  useEffect(() => {
+    if (isPoppingState.current) {
+      isPoppingState.current = false;
+      return;
+    }
+    const snap = { gameState, level, subject, exerciseType, totalQuestions, selectedTables, additionMax };
+    const path = getHistoryPath(gameState, exerciseType);
+    if (isFirstRender.current) {
+      isFirstRender.current = false;
+      window.history.replaceState(snap, '', path);
+    } else {
+      window.history.pushState(snap, '', path);
+    }
+  }, [gameState, level]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Handle browser back / forward
+  useEffect(() => {
+    const onPopState = (e: PopStateEvent) => {
+      if (!e.state) return;
+      isPoppingState.current = true;
+      const s = e.state;
+      setLevel(s.level ?? null);
+      setSubject(s.subject ?? null);
+      setExerciseType(s.exerciseType ?? null);
+      setTotalQuestions(s.totalQuestions ?? 5);
+      setSelectedTables(s.selectedTables ?? []);
+      setAdditionMax(s.additionMax ?? 10);
+      setGameState(s.gameState ?? 'intro');
+    };
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
 
   const startExercise = (subj: 'français' | 'maths' | 'autre', type: string) => {
     setSubject(subj);
