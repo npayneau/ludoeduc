@@ -6,7 +6,7 @@ const App: React.FC = () => {
   const [level, setLevel] = useState<Level | null>(null);
   const [subject, setSubject] = useState<'français' | 'maths' | 'autre' | null>(null);
   const [exerciseType, setExerciseType] = useState<string | null>(null);
-  const [gameState, setGameState] = useState<'intro' | 'configuringMath' | 'configuringDictation' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'phraseMenu' | 'playing' | 'summary'>('intro');
+  const [gameState, setGameState] = useState<'intro' | 'configuringMath' | 'configuringDictation' | 'dicteeMenu' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'phraseMenu' | 'playing' | 'summary'>('intro');
   const [lastScore, setLastScore] = useState(0);
   const [timerDuration, setTimerDuration] = useState(4);
   const [selectedTables, setSelectedTables] = useState<number[]>([]);
@@ -70,6 +70,7 @@ const App: React.FC = () => {
     if (type.startsWith('ortho-')) return 'orthographeMenu';
     if (type.startsWith('vocab-')) return 'vocabulaireMenu';
     if (type.startsWith('phrase-') || type === 'grammaire') return 'phraseMenu';
+    if (type === 'dictée' || type === 'dictée-trou') return 'dicteeMenu';
     return 'intro';
   };
 
@@ -177,7 +178,7 @@ const App: React.FC = () => {
           </div>
 
           <div className="mt-6 sm:mt-10 pt-6 sm:pt-8 border-t-2 border-dashed border-gray-100 flex flex-col sm:flex-row gap-4">
-            <button onClick={reset} className="flex-1 py-4 sm:py-5 rounded-2xl bg-white border-2 border-gray-200 text-lg sm:text-xl font-bold text-gray-400 hover:bg-gray-50 transition-all">Retour</button>
+            <button onClick={() => gameState === 'configuringDictation' ? setGameState('dicteeMenu') : reset()} className="flex-1 py-4 sm:py-5 rounded-2xl bg-white border-2 border-gray-200 text-lg sm:text-xl font-bold text-gray-400 hover:bg-gray-50 transition-all">Retour</button>
             <button
               onClick={() => setGameState('playing')}
               className={`flex-[2] py-4 sm:py-5 rounded-2xl text-xl sm:text-2xl font-bold shadow-lg transition-all transform hover:scale-105 active:scale-95 text-white ${gameState === 'configuringMath' ? 'bg-amber-500 hover:bg-amber-600' : 'bg-emerald-500 hover:bg-emerald-600'
@@ -186,6 +187,33 @@ const App: React.FC = () => {
               C'est parti ! 🚀
             </button>
           </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (gameState === 'dicteeMenu') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
+        <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Défi Dictée 📝</h2>
+          <p className="text-gray-500 text-sm mb-8">Choisis un type de dictée :</p>
+          <div className="grid sm:grid-cols-2 gap-4 mb-8">
+            <button onClick={() => startExercise('français', 'dictée-trou')}
+              className="p-6 rounded-2xl bg-green-50 border-2 border-green-200 hover:bg-green-100 text-left transition-all">
+              <div className="text-2xl mb-2">📝</div>
+              <h3 className="font-bold text-green-700 text-lg">Dictée à trous</h3>
+              <p className="text-sm text-green-600/70 mt-1">Complète les phrases avec le mot manquant.</p>
+            </button>
+            <button onClick={() => startExercise('français', 'dictée')}
+              className="p-6 rounded-2xl bg-green-50 border-2 border-green-200 hover:bg-green-100 text-left transition-all">
+              <div className="text-2xl mb-2">🎧</div>
+              <h3 className="font-bold text-green-700 text-lg">Dictée interactive</h3>
+              <p className="text-sm text-green-600/70 mt-1">Écoute les phrases et écris-les.</p>
+            </button>
+          </div>
+          <button onClick={reset} className="w-full py-3 rounded-2xl bg-white border-2 border-gray-200 text-gray-400 font-bold hover:bg-gray-50">← Retour</button>
         </div>
         <Footer />
       </div>
@@ -677,20 +705,12 @@ const App: React.FC = () => {
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all text-2xl">✍️</span>
             </button>
             <button
-              onClick={() => startExercise('français', 'dictée-trou')}
-              className="group relative p-6 sm:p-8 rounded-3xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all text-left"
+              onClick={() => setGameState('dicteeMenu')}
+              className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
             >
-              <h3 className="text-xl sm:text-2xl font-bold text-emerald-700 mb-1 sm:mb-2">Dictée à trous</h3>
-              <p className="text-sm sm:text-base text-emerald-600/70">Complète les phrases avec le mot manquant.</p>
-              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all text-2xl">📝</span>
-            </button>
-            <button
-              onClick={() => startExercise('français', 'dictée')}
-              className="group relative p-6 sm:p-8 rounded-3xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all text-left"
-            >
-              <h3 className="text-xl sm:text-2xl font-bold text-emerald-700 mb-1 sm:mb-2">Dictée Interactive</h3>
-              <p className="text-sm sm:text-base text-emerald-600/70">Écoute les phrases et écris-les (local).</p>
-              <span className="hidden sm:block absolute right-6 bottom-6 text-2xl group-hover:scale-125 transition-all">🎧</span>
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Défi Dictée</h3>
+              <p className="text-sm sm:text-base text-green-600/70">Dictée à trous et dictée interactive.</p>
+              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">📝</span>
             </button>
             <button
               onClick={() => setGameState('nomsMenu')}
