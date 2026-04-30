@@ -1,4 +1,4 @@
-import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask, NounSortTask, NounIdentifyTask, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask } from './types';
+import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask, NounSortTask, NounIdentifyTask, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask } from './types';
 import { SENTENCE_DATABASE } from './database/sentences';
 import { VERB_DATABASE } from './database/verbs';
 import { MATH_DATABASE } from './database/math';
@@ -6,6 +6,7 @@ import { DICTATION_DATABASE, HOLEY_DICTATION_DATABASE } from './database/dictati
 import { NOUN_SORT_DATABASE, NOUN_IDENTIFY_DATABASE, NOUN_PLURAL_DATABASE, NOUN_GENDER_DATABASE } from './database/nouns';
 import { VERB_IDENTIFY_DATABASE, VERB_CONJUGATED_DATABASE, VERB_INFINITIVE_DATABASE, VERB_TENSE_DATABASE } from './database/verb-exercises';
 import { DET_IDENTIFY_DATABASE, DET_GENDER_DATABASE, DET_NUMBER_DATABASE, DET_WRITE_DATABASE, DET_CHOOSE_DATABASE, DET_ARTICLE_DATABASE } from './database/determiners';
+import { SILENT_LETTER_DATABASE, SPELLING_CHOICE_DATABASE } from './database/spelling';
 
 /**
  * Sélectionne X phrases au hasard pour un niveau donné (Grammaire).
@@ -269,4 +270,20 @@ export const getDetChooseQuestions = (level: Level, limit: number = 5): DetChoos
 export const getDetArticleQuestions = (level: Level, limit: number = 5): DetArticleSortTask[] => {
   const filtered = DET_ARTICLE_DATABASE.filter(n => ['CE2', 'CM1', 'CM2'].includes(n.level));
   return filtered.sort(() => 0.5 - Math.random()).slice(0, limit);
+};
+
+export const getSilentLetterQuestions = (level: Level, limit: number): SilentLetterTask[] => {
+  const levels = level === 'CE1' ? ['CE1'] : ['CE1', 'CE2'];
+  return SILENT_LETTER_DATABASE
+    .filter(t => levels.includes(t.level))
+    .sort(() => 0.5 - Math.random())
+    .slice(0, limit);
+};
+
+export const getSpellingChoiceQuestions = (rule: string, level: Level, limit: number): SpellingChoiceTask[] => {
+  const levels = level === 'CE1' ? ['CE1'] : ['CE1', 'CE2'];
+  return SPELLING_CHOICE_DATABASE
+    .filter(t => t.rule === rule && levels.includes(t.level))
+    .sort(() => 0.5 - Math.random())
+    .slice(0, limit);
 };

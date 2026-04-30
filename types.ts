@@ -185,3 +185,23 @@ export interface DetArticleSortTask {
   type: 'défini' | 'indéfini';
   level: Level;
 }
+
+// Exercices d'orthographe
+export interface SilentLetterTask {
+  id: number;
+  hint: string;        // mot de la famille, ex: "un arbre fruitier"
+  partialWord: string; // mot à compléter, ex: "frui…"
+  answer: string;      // lettre muette, ex: "t"
+  options: string[];   // 4 lettres dont la bonne, ex: ["t", "s", "d", "x"]
+  level: Level;
+}
+
+export interface SpellingChoiceTask {
+  id: number;
+  textBefore: string;  // avant le "..."
+  textAfter: string;   // après le "..." (peut être vide si le blanc est en fin de mot)
+  answer: string;      // la bonne réponse parmi les options
+  options: [string, string]; // exactement 2 choix
+  rule: 'ortho-s-ss' | 'ortho-n-m' | 'ortho-c-cedilla' | 'ortho-g-ge' | 'ortho-g-gu';
+  level: Level;
+}

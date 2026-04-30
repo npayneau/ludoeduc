@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask } from '../types';
-import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions } from '../data';
+﻿import React, { useState, useEffect, useRef } from 'react';
+import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask } from '../types';
+import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions, getSilentLetterQuestions, getSpellingChoiceQuestions } from '../data';
 import { CATEGORY_COLORS, CATEGORY_LABELS, TIMINGS } from '../constants';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -61,6 +61,8 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
       else if (type === 'det-ecrire') q = getDetWriteQuestions(level, totalQuestions);
       else if (type === 'det-choisir') q = getDetChooseQuestions(level, totalQuestions);
       else if (type === 'det-articles') q = getDetArticleQuestions(level, totalQuestions);
+      else if (type === 'ortho-lettre-muette') q = getSilentLetterQuestions(level, totalQuestions);
+      else if (type.startsWith('ortho-')) q = getSpellingChoiceQuestions(type, level, totalQuestions);
     } else if (subject === 'autre') {
       if (type === 'time') q = getTimeQuestions(level, totalQuestions);
     } else {
@@ -209,6 +211,10 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
                             ? (current as DetArticleSortTask).type.charAt(0).toUpperCase() + (current as DetArticleSortTask).type.slice(1)
                           : type === 'det-identification'
                             ? 'Les déterminants : ' + (current as DetIdentifyTask).words.filter((w: DetIdentifyWord) => w.isDeterminer).map((w: DetIdentifyWord) => w.text).join(', ')
+                          : type === 'ortho-lettre-muette'
+                            ? `La lettre muette est : "${(current as SilentLetterTask).answer}"`
+                          : type.startsWith('ortho-')
+                            ? (current as SpellingChoiceTask).answer
                           : String(current.correctAnswer || current.answer || current.sentence || (current as TimeTask).time || '...')
               }
             </div>
@@ -262,6 +268,8 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
         {type === 'det-ecrire' && <DetWriteExercise task={current as DetWriteTask} onValidate={handleValidation} />}
         {type === 'det-choisir' && <DetChooseExercise task={current as DetChooseTask} onValidate={handleValidation} />}
         {type === 'det-articles' && <DetArticleSortExercise task={current as DetArticleSortTask} onValidate={handleValidation} />}
+        {type === 'ortho-lettre-muette' && <SilentLetterExercise task={current as SilentLetterTask} onValidate={handleValidation} />}
+        {type.startsWith('ortho-') && type !== 'ortho-lettre-muette' && <SpellingChoiceExercise task={current as SpellingChoiceTask} onValidate={handleValidation} />}
         {subject === 'maths' && (
           <MathDisplay
             task={current as MathTask}
@@ -1384,4 +1392,57 @@ const DetArticleSortExercise: React.FC<{ task: DetArticleSortTask; onValidate: (
   </div>
 );
 
+
+const SilentLetterExercise: React.FC<{ task: SilentLetterTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => (
+  <div className="text-center">
+    <h3 className="text-2xl sm:text-3xl font-title mb-6 text-indigo-700">Quel est le mot complet ?</h3>
+    <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 sm:p-8 mb-6">
+      <p className="text-sm text-indigo-500 mb-2 font-medium">Indice : {task.hint}</p>
+      <p className="text-4xl font-title text-indigo-900">{task.partialWord}</p>
+    </div>
+    <div className="flex gap-4 justify-center flex-wrap">
+      {task.options.map(letter => (
+        <button
+          key={letter}
+          onClick={() => onValidate(task.answer === letter, letter)}
+          className="bg-white border-2 border-indigo-200 text-indigo-700 font-bold text-2xl w-16 h-16 rounded-2xl hover:bg-indigo-50 transition-all"
+        >
+          {letter}
+        </button>
+      ))}
+    </div>
+  </div>
+);
+
+const SPELLING_TITLES: Record<string, string> = {
+  'ortho-s-ss': 's ou ss ?',
+  'ortho-n-m': 'n ou m ?',
+  'ortho-c-cedilla': 'c ou ç ?',
+  'ortho-g-ge': 'g ou ge ?',
+  'ortho-g-gu': 'g ou gu ?',
+};
+
+const SpellingChoiceExercise: React.FC<{ task: SpellingChoiceTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => (
+  <div className="text-center">
+    <h3 className="text-2xl sm:text-3xl font-title mb-6 text-indigo-700">{SPELLING_TITLES[task.rule] ?? 'Complete le mot'}</h3>
+    <div className="bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 mb-8">
+      <p className="text-3xl sm:text-4xl font-title text-indigo-900">
+        <span>{task.textBefore}</span>
+        <span className="bg-indigo-100 border-b-4 border-indigo-400 px-2 text-indigo-400 font-bold">...</span>
+        <span>{task.textAfter}</span>
+      </p>
+    </div>
+    <div className="flex gap-4 justify-center">
+      {task.options.map(option => (
+        <button
+          key={option}
+          onClick={() => onValidate(task.answer === option, option)}
+          className="flex-1 max-w-[160px] py-6 rounded-2xl text-2xl font-bold border-2 border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-100 transition-all"
+        >
+          {option}
+        </button>
+      ))}
+    </div>
+  </div>
+);
 export default ExerciseRunner;
