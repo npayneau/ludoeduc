@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
-import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, VocabFamilyWord, PhraseTypeTask, PhrasePunctuationTask, PhraseOrderTask, PhraseValidTask } from '../types';
-import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions, getSilentLetterQuestions, getSpellingChoiceQuestions, getVocabAlphaLettersQuestions, getVocabAlphaWordsQuestions, getVocabSynonymQuestions, getVocabIntrusQuestions, getVocabContraireQuestions, getVocabFamilyQuestions, getPhraseTypeQuestions, getPhrasePunctuationQuestions, getPhraseOrderQuestions, getPhraseValidQuestions } from '../data';
+import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, VocabFamilyWord, PhraseTypeTask, PhrasePunctuationTask, PhraseOrderTask, PhraseValidTask, AdverbIdentifyTask, AdjAdvTransformTask } from '../types';
+import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions, getSilentLetterQuestions, getSpellingChoiceQuestions, getVocabAlphaLettersQuestions, getVocabAlphaWordsQuestions, getVocabSynonymQuestions, getVocabIntrusQuestions, getVocabContraireQuestions, getVocabFamilyQuestions, getPhraseTypeQuestions, getPhrasePunctuationQuestions, getPhraseOrderQuestions, getPhraseValidQuestions, getAdverbIdentifyQuestions, getAdjToAdvQuestions, getAdvToAdjQuestions } from '../data';
 import { CATEGORY_COLORS, CATEGORY_LABELS, TIMINGS } from '../constants';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -73,6 +73,9 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
       else if (type === 'phrase-ponctuation') q = getPhrasePunctuationQuestions(level, totalQuestions);
       else if (type === 'phrase-ordre') q = getPhraseOrderQuestions(level, totalQuestions);
       else if (type === 'phrase-valide') q = getPhraseValidQuestions(level, totalQuestions);
+      else if (type === 'adv-identification') q = getAdverbIdentifyQuestions(level, totalQuestions);
+      else if (type === 'adv-adj-to-adv') q = getAdjToAdvQuestions(level, totalQuestions);
+      else if (type === 'adv-adv-to-adj') q = getAdvToAdjQuestions(level, totalQuestions);
     } else if (subject === 'autre') {
       if (type === 'time') q = getTimeQuestions(level, totalQuestions);
     } else {
@@ -243,6 +246,10 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
                             ? (current as PhraseOrderTask).words.join(' ')
                           : type === 'phrase-valide'
                             ? ((current as PhraseValidTask).isValid ? 'Oui, phrase correcte ✅' : `Non — ${(current as PhraseValidTask).reason}`)
+                          : type === 'adv-identification'
+                            ? 'Les adverbes : ' + (current as AdverbIdentifyTask).words.filter(w => w.isAdverb).map(w => w.word).join(', ')
+                          : (type === 'adv-adj-to-adv' || type === 'adv-adv-to-adj')
+                            ? (current as AdjAdvTransformTask).to
                           : String(current.correctAnswer || current.answer || current.sentence || (current as TimeTask).time || '...')
               }
             </div>
@@ -307,6 +314,8 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
         {type === 'phrase-ponctuation' && <PhrasePunctuationExercise task={current as PhrasePunctuationTask} onValidate={handleValidation} />}
         {type === 'phrase-ordre' && <PhraseOrderExercise task={current as PhraseOrderTask} onValidate={handleValidation} />}
         {type === 'phrase-valide' && <PhraseValidExercise task={current as PhraseValidTask} onValidate={handleValidation} />}
+        {type === 'adv-identification' && <AdverbIdentifyExercise task={current as AdverbIdentifyTask} onValidate={handleValidation} />}
+        {(type === 'adv-adj-to-adv' || type === 'adv-adv-to-adj') && <AdjAdvTransformExercise task={current as AdjAdvTransformTask} type={type} onValidate={handleValidation} />}
         {subject === 'maths' && (
           <MathDisplay
             task={current as MathTask}
@@ -1808,5 +1817,104 @@ function PhraseValidExercise({ task, onValidate }: { task: PhraseValidTask; onVa
     </div>
   );
 }
+
+const AdverbIdentifyExercise: React.FC<{ task: AdverbIdentifyTask; onValidate: (c: boolean, v?: string) => void }> = ({ task, onValidate }) => {
+  const [selected, setSelected] = useState<Set<number>>(new Set());
+  const [validated, setValidated] = useState(false);
+
+  const toggle = (i: number) => {
+    if (validated) return;
+    setSelected(prev => {
+      const next = new Set(prev);
+      if (next.has(i)) next.delete(i);
+      else next.add(i);
+      return next;
+    });
+  };
+
+  const check = () => {
+    setValidated(true);
+    const correctIndices = new Set(task.words.map((w, i) => w.isAdverb ? i : -1).filter(i => i >= 0));
+    const allCorrect = selected.size === correctIndices.size && [...selected].every(i => correctIndices.has(i));
+    setTimeout(() => {
+      setSelected(new Set());
+      setValidated(false);
+      onValidate(allCorrect);
+    }, 800);
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-2 text-indigo-700">Identifier les adverbes</h3>
+      <p className="text-gray-500 text-sm mb-6">Clique sur tous les adverbes dans la liste :</p>
+      <div className="flex flex-wrap justify-center gap-3 mb-8">
+        {task.words.map((w, i) => {
+          const isSel = selected.has(i);
+          const isCorrect = w.isAdverb;
+          let cls = 'px-5 py-3 rounded-2xl border-2 text-lg font-bold transition-all cursor-pointer ';
+          if (!validated) {
+            cls += isSel
+              ? 'bg-indigo-600 text-white border-indigo-700 scale-105'
+              : 'bg-indigo-50 text-indigo-700 border-indigo-200 hover:bg-indigo-100';
+          } else {
+            if (isSel && isCorrect) cls += 'bg-green-500 text-white border-green-600';
+            else if (isSel && !isCorrect) cls += 'bg-red-500 text-white border-red-600';
+            else if (!isSel && isCorrect) cls += 'bg-yellow-300 text-yellow-900 border-yellow-400';
+            else cls += 'bg-gray-100 text-gray-400 border-gray-200';
+          }
+          return (
+            <button key={i} onClick={() => toggle(i)} className={cls}>
+              {w.word}
+            </button>
+          );
+        })}
+      </div>
+      <button onClick={check} className="bg-indigo-600 text-white px-10 py-4 rounded-2xl text-xl font-bold hover:bg-indigo-700 shadow-xl transition-all">
+        Valider ✅
+      </button>
+    </div>
+  );
+};
+
+const AdjAdvTransformExercise: React.FC<{ task: AdjAdvTransformTask; type: string; onValidate: (c: boolean, v?: string) => void }> = ({ task, type, onValidate }) => {
+  const [value, setValue] = useState('');
+
+  const isAdjToAdv = type === 'adv-adj-to-adv';
+  const title = isAdjToAdv ? 'Adjectif → Adverbe' : 'Adverbe → Adjectif';
+  const arrow = isAdjToAdv ? '→' : '←';
+  const label = isAdjToAdv ? "Écris l'adverbe correspondant :" : "Retrouve l'adjectif correspondant :";
+
+  const check = () => {
+    const correct = value.trim().toLowerCase() === task.to.toLowerCase();
+    onValidate(correct, value.trim());
+    if (correct) setValue('');
+  };
+
+  return (
+    <div className="text-center">
+      <h3 className="text-2xl sm:text-3xl font-title mb-2 text-indigo-700">{title}</h3>
+      <p className="text-gray-500 text-sm mb-8">{label}</p>
+      <div className="flex items-center justify-center gap-4 mb-8">
+        <span className="text-3xl sm:text-4xl font-bold text-indigo-700 bg-indigo-50 px-6 py-3 rounded-2xl border-2 border-indigo-200">{task.from}</span>
+        <span className="text-2xl text-indigo-400 font-bold">{arrow}</span>
+        <input
+          type="text"
+          value={value}
+          onChange={e => setValue(e.target.value)}
+          onKeyDown={e => e.key === 'Enter' && check()}
+          autoFocus
+          placeholder="..."
+          className="border-b-4 border-indigo-400 bg-indigo-50 px-4 py-2 text-center text-2xl font-bold text-indigo-700 focus:outline-none focus:border-indigo-600 min-w-[160px] rounded-t-xl"
+        />
+      </div>
+      {task.hint && (
+        <p className="text-sm text-gray-400 italic mb-6">💡 {task.hint}</p>
+      )}
+      <button onClick={check} className="bg-indigo-600 text-white px-10 py-4 rounded-2xl text-xl font-bold hover:bg-indigo-700 shadow-xl transition-all">
+        Valider ✍️
+      </button>
+    </div>
+  );
+};
 
 export default ExerciseRunner;

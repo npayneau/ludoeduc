@@ -278,3 +278,18 @@ export interface PhraseValidTask {
   reason: string;
   level: Level;
 }
+
+// Défis Adverbes
+export interface AdverbIdentifyTask {
+  id: number;
+  words: { word: string; isAdverb: boolean }[];
+  level: Level;
+}
+
+export interface AdjAdvTransformTask {
+  id: number;
+  from: string;
+  to: string;
+  hint?: string;
+  level: Level;
+}

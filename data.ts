@@ -1,4 +1,4 @@
-import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask, NounSortTask, NounIdentifyTask, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask } from './types';
+import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask, NounSortTask, NounIdentifyTask, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, AdverbIdentifyTask, AdjAdvTransformTask } from './types';
 import { SENTENCE_DATABASE } from './database/sentences';
 import { VERB_DATABASE } from './database/verbs';
 import { MATH_DATABASE } from './database/math';
@@ -324,3 +324,21 @@ export const getPhraseOrderQuestions = (level: Level, limit: number): PhraseOrde
 
 export const getPhraseValidQuestions = (level: Level, limit: number): PhraseValidTask[] =>
   PHRASE_VALID_DATABASE.filter(t => phraseLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+import { adverbIdentifyDB, adjToAdvDB, advToAdjDB } from './database/adverbs';
+
+const shuffle = <T>(arr: T[]): T[] => [...arr].sort(() => 0.5 - Math.random());
+
+export const getAdverbIdentifyQuestions = (level: Level, limit: number): AdverbIdentifyTask[] => {
+  const levels: Level[] = level === 'CM2' ? ['CE2', 'CM1', 'CM2'] : level === 'CM1' ? ['CE2', 'CM1'] : ['CE2'];
+  return shuffle(adverbIdentifyDB.filter(q => levels.includes(q.level))).slice(0, limit);
+};
+
+export const getAdjToAdvQuestions = (level: Level, limit: number): AdjAdvTransformTask[] => {
+  const levels: Level[] = level === 'CM2' ? ['CE2', 'CM1', 'CM2'] : level === 'CM1' ? ['CE2', 'CM1'] : ['CE2'];
+  return shuffle(adjToAdvDB.filter(q => levels.includes(q.level))).slice(0, limit);
+};
+
+export const getAdvToAdjQuestions = (level: Level, limit: number): AdjAdvTransformTask[] => {
+  const levels: Level[] = level === 'CM2' ? ['CE2', 'CM1', 'CM2'] : level === 'CM1' ? ['CE2', 'CM1'] : ['CE2'];
+  return shuffle(advToAdjDB.filter(q => levels.includes(q.level))).slice(0, limit);
+};

@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Level, MathType } from './types';
 import ExerciseRunner from './components/ExerciseRunner';
 
-type GameState = 'intro' | 'configuringMath' | 'configuringDictation' | 'dicteeMenu' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'phraseMenu' | 'playing' | 'summary';
+type GameState = 'intro' | 'configuringMath' | 'configuringDictation' | 'dicteeMenu' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'phraseMenu' | 'adverbesMenu' | 'playing' | 'summary';
 
 const BASE = '/ludoeduc';
 const getHistoryPath = (gs: GameState, et: string | null): string => {
@@ -17,6 +17,7 @@ const getHistoryPath = (gs: GameState, et: string | null): string => {
   if (gs === 'orthographeMenu') return `${BASE}/francais/orthographe`;
   if (gs === 'vocabulaireMenu') return `${BASE}/francais/vocabulaire`;
   if (gs === 'phraseMenu') return `${BASE}/francais/phrase`;
+  if (gs === 'adverbesMenu') return `${BASE}/francais/adverbes`;
   if (gs === 'playing') return `${BASE}/playing/${et ?? ''}`;
   if (gs === 'summary') return `${BASE}/summary`;
   return `${BASE}/`;
@@ -127,6 +128,7 @@ const App: React.FC = () => {
     if (type.startsWith('ortho-')) return 'orthographeMenu';
     if (type.startsWith('vocab-')) return 'vocabulaireMenu';
     if (type.startsWith('phrase-') || type === 'grammaire') return 'phraseMenu';
+    if (type.startsWith('adv-')) return 'adverbesMenu';
     if (type === 'dictée' || type === 'dictée-trou') return 'dicteeMenu';
     return 'intro';
   };
@@ -303,6 +305,50 @@ const App: React.FC = () => {
                 <p className="text-sm text-green-600/70 mt-1">{item.desc}</p>
               </button>
             ))}
+          </div>
+          <div className="mb-6 p-4 rounded-2xl bg-green-50 border border-green-100">
+            <p className="text-green-700 font-bold uppercase text-xs tracking-wider mb-3">Nombre de questions :</p>
+            <div className="flex flex-wrap gap-2 justify-center">
+              {[3, 5, 8, 10].map(n => (
+                <button key={n} onClick={() => setTotalQuestions(n)}
+                  className={`px-6 py-2 rounded-xl font-bold transition-all border-2 ${totalQuestions === n ? 'bg-green-600 text-white border-green-700' : 'bg-white text-green-600 border-green-200 hover:bg-green-50'}`}>
+                  {n}
+                </button>
+              ))}
+            </div>
+          </div>
+          <button onClick={reset} className="w-full py-3 rounded-2xl bg-white border-2 border-gray-200 text-gray-400 font-bold hover:bg-gray-50">← Retour</button>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (gameState === 'adverbesMenu') {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
+        <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Défis Adverbes 🔤</h2>
+          <p className="text-gray-500 text-sm mb-8">Choisis un exercice :</p>
+          <div className="grid sm:grid-cols-2 gap-4 mb-8">
+            <button onClick={() => { setSubject('français'); setExerciseType('adv-identification'); setGameState('playing'); }}
+              className="p-6 rounded-2xl bg-green-50 border-2 border-green-200 hover:bg-green-100 text-left transition-all">
+              <div className="text-2xl mb-2">🔍</div>
+              <h3 className="font-bold text-green-700 text-lg">Identifier les adverbes</h3>
+              <p className="text-sm text-green-600/70 mt-1">Repère les adverbes dans une liste de mots.</p>
+            </button>
+            <button onClick={() => { setSubject('français'); setExerciseType('adv-adj-to-adv'); setGameState('playing'); }}
+              className="p-6 rounded-2xl bg-green-50 border-2 border-green-200 hover:bg-green-100 text-left transition-all">
+              <div className="text-2xl mb-2">➡️</div>
+              <h3 className="font-bold text-green-700 text-lg">Adjectif → Adverbe</h3>
+              <p className="text-sm text-green-600/70 mt-1">Transforme un adjectif en adverbe.</p>
+            </button>
+            <button onClick={() => { setSubject('français'); setExerciseType('adv-adv-to-adj'); setGameState('playing'); }}
+              className="p-6 rounded-2xl bg-green-50 border-2 border-green-200 hover:bg-green-100 text-left transition-all">
+              <div className="text-2xl mb-2">⬅️</div>
+              <h3 className="font-bold text-green-700 text-lg">Adverbe → Adjectif</h3>
+              <p className="text-sm text-green-600/70 mt-1">Retrouve l'adjectif à partir de l'adverbe.</p>
+            </button>
           </div>
           <div className="mb-6 p-4 rounded-2xl bg-green-50 border border-green-100">
             <p className="text-green-700 font-bold uppercase text-xs tracking-wider mb-3">Nombre de questions :</p>
@@ -785,6 +831,16 @@ const App: React.FC = () => {
               <p className="text-sm sm:text-base text-green-600/70">Identifier, infinitif, temps et conjugaison.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">✍️</span>
             </button>
+            {(level === 'CE2' || level === 'CM1' || level === 'CM2') && (
+              <button
+                onClick={() => setGameState('adverbesMenu')}
+                className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
+              >
+                <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Défis Adverbes</h3>
+                <p className="text-sm sm:text-base text-green-600/70">Identifier, adjectif ↔ adverbe.</p>
+                <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">🔤</span>
+              </button>
+            )}
             <button
               onClick={() => setGameState('determineursMenu')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
