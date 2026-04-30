@@ -646,14 +646,6 @@ const App: React.FC = () => {
           </div>
           <div className="grid gap-4 sm:gap-6">
             <button
-              onClick={() => startExercise('français', 'grammaire')}
-              className="group relative p-6 sm:p-8 rounded-3xl bg-emerald-50 border-2 border-emerald-100 hover:border-emerald-400 hover:bg-emerald-100 transition-all text-left"
-            >
-              <h3 className="text-xl sm:text-2xl font-bold text-emerald-700 mb-1 sm:mb-2">Nature des mots</h3>
-              <p className="text-sm sm:text-base text-emerald-600/70">Identifie les classes grammaticales.</p>
-              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all text-2xl">🖍️</span>
-            </button>
-            <button
               onClick={() => setGameState('phraseMenu')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
             >
