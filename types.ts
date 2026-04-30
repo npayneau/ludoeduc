@@ -249,3 +249,32 @@ export interface VocabFamilyTask {
   words: VocabFamilyWord[];  // mix famille + hors famille (8-10 mots)
   level: Level;
 }
+
+// Exercices sur la phrase
+export interface PhraseTypeTask {
+  id: number;
+  sentence: string;
+  type: 'déclarative' | 'impérative' | 'interrogative';
+  level: Level;
+}
+
+export interface PhrasePunctuationTask {
+  id: number;
+  sentence: string;
+  answer: '.' | '?' | '!';
+  level: Level;
+}
+
+export interface PhraseOrderTask {
+  id: number;
+  words: string[];
+  level: Level;
+}
+
+export interface PhraseValidTask {
+  id: number;
+  sentence: string;
+  isValid: boolean;
+  reason: string;
+  level: Level;
+}

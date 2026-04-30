@@ -1,6 +1,6 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
-import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, VocabFamilyWord } from '../types';
-import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions, getSilentLetterQuestions, getSpellingChoiceQuestions, getVocabAlphaLettersQuestions, getVocabAlphaWordsQuestions, getVocabSynonymQuestions, getVocabIntrusQuestions, getVocabContraireQuestions, getVocabFamilyQuestions } from '../data';
+import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, VocabFamilyWord, PhraseTypeTask, PhrasePunctuationTask, PhraseOrderTask, PhraseValidTask } from '../types';
+import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions, getSilentLetterQuestions, getSpellingChoiceQuestions, getVocabAlphaLettersQuestions, getVocabAlphaWordsQuestions, getVocabSynonymQuestions, getVocabIntrusQuestions, getVocabContraireQuestions, getVocabFamilyQuestions, getPhraseTypeQuestions, getPhrasePunctuationQuestions, getPhraseOrderQuestions, getPhraseValidQuestions } from '../data';
 import { CATEGORY_COLORS, CATEGORY_LABELS, TIMINGS } from '../constants';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -69,6 +69,10 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
       else if (type === 'vocab-intrus') q = getVocabIntrusQuestions(level, totalQuestions);
       else if (type === 'vocab-contraires') q = getVocabContraireQuestions(level, totalQuestions);
       else if (type === 'vocab-famille') q = getVocabFamilyQuestions(level, totalQuestions);
+      else if (type === 'phrase-type') q = getPhraseTypeQuestions(level, totalQuestions);
+      else if (type === 'phrase-ponctuation') q = getPhrasePunctuationQuestions(level, totalQuestions);
+      else if (type === 'phrase-ordre') q = getPhraseOrderQuestions(level, totalQuestions);
+      else if (type === 'phrase-valide') q = getPhraseValidQuestions(level, totalQuestions);
     } else if (subject === 'autre') {
       if (type === 'time') q = getTimeQuestions(level, totalQuestions);
     } else {
@@ -231,6 +235,14 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
                             ? 'Contraire : ' + (current as VocabContraireTask).answer
                           : type === 'vocab-famille'
                             ? 'Famille de "' + (current as VocabFamilyTask).baseWord + '" : ' + (current as VocabFamilyTask).words.filter((w: VocabFamilyWord) => w.isSameFamily).map((w: VocabFamilyWord) => w.text).join(', ')
+                          : type === 'phrase-type'
+                            ? (current as PhraseTypeTask).type.charAt(0).toUpperCase() + (current as PhraseTypeTask).type.slice(1)
+                          : type === 'phrase-ponctuation'
+                            ? `Le bon signe : "${(current as PhrasePunctuationTask).answer}"`
+                          : type === 'phrase-ordre'
+                            ? (current as PhraseOrderTask).words.join(' ')
+                          : type === 'phrase-valide'
+                            ? ((current as PhraseValidTask).isValid ? 'Oui, phrase correcte ✅' : `Non — ${(current as PhraseValidTask).reason}`)
                           : String(current.correctAnswer || current.answer || current.sentence || (current as TimeTask).time || '...')
               }
             </div>
@@ -291,6 +303,10 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
         {type === 'vocab-intrus' && <VocabIntrusExercise task={current as VocabIntrusTask} onValidate={handleValidation} />}
         {type === 'vocab-contraires' && <VocabContraireExercise task={current as VocabContraireTask} onValidate={handleValidation} />}
         {type === 'vocab-famille' && <VocabFamilleExercise task={current as VocabFamilyTask} onValidate={handleValidation} />}
+        {type === 'phrase-type' && <PhraseTypeExercise task={current as PhraseTypeTask} onValidate={handleValidation} />}
+        {type === 'phrase-ponctuation' && <PhrasePunctuationExercise task={current as PhrasePunctuationTask} onValidate={handleValidation} />}
+        {type === 'phrase-ordre' && <PhraseOrderExercise task={current as PhraseOrderTask} onValidate={handleValidation} />}
+        {type === 'phrase-valide' && <PhraseValidExercise task={current as PhraseValidTask} onValidate={handleValidation} />}
         {subject === 'maths' && (
           <MathDisplay
             task={current as MathTask}
@@ -1654,5 +1670,143 @@ const VocabFamilleExercise: React.FC<{ task: VocabFamilyTask; onValidate: (c: bo
     </div>
   );
 };
+
+function PhraseTypeExercise({ task, onValidate }: { task: PhraseTypeTask; onValidate: (correct: boolean, answer: string) => void }) {
+  const choices: Array<{ value: 'déclarative' | 'impérative' | 'interrogative'; label: string; style: string }> = [
+    { value: 'déclarative', label: 'Déclarative 📖', style: 'bg-blue-100 border-blue-300 text-blue-800 hover:bg-blue-200' },
+    { value: 'interrogative', label: 'Interrogative ❓', style: 'bg-amber-100 border-amber-300 text-amber-800 hover:bg-amber-200' },
+    { value: 'impérative', label: 'Impérative ❗', style: 'bg-red-100 border-red-300 text-red-800 hover:bg-red-200' },
+  ];
+  return (
+    <div className="flex flex-col items-center gap-8">
+      <h2 className="text-xl sm:text-2xl font-bold text-indigo-700">Quel est le type de cette phrase ?</h2>
+      <div className="w-full bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 mb-2 text-center">
+        <p className="text-2xl sm:text-3xl font-bold text-indigo-900">{task.sentence}</p>
+      </div>
+      <div className="flex flex-col sm:flex-row gap-4 w-full">
+        {choices.map(c => (
+          <button
+            key={c.value}
+            onClick={() => onValidate(task.type === c.value, c.value)}
+            className={`flex-1 py-4 px-6 rounded-2xl text-xl font-bold border-2 transition-all ${c.style}`}
+          >
+            {c.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+function PhrasePunctuationExercise({ task, onValidate }: { task: PhrasePunctuationTask; onValidate: (correct: boolean, answer: string) => void }) {
+  const signs: Array<'.' | '?' | '!'> = ['.', '?', '!'];
+  return (
+    <div className="flex flex-col items-center gap-8">
+      <h2 className="text-xl sm:text-2xl font-bold text-indigo-700">Quel signe de ponctuation faut-il ajouter ?</h2>
+      <div className="w-full bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 text-center">
+        <p className="text-2xl sm:text-3xl font-bold text-indigo-900">{task.sentence} ___</p>
+      </div>
+      <div className="flex gap-6">
+        {signs.map(sign => (
+          <button
+            key={sign}
+            onClick={() => onValidate(task.answer === sign, sign)}
+            className="w-20 h-20 sm:w-24 sm:h-24 rounded-2xl text-4xl font-bold border-2 border-indigo-200 bg-white text-indigo-700 hover:bg-indigo-50 transition-all"
+          >
+            {sign}
+          </button>
+        ))}
+      </div>
+    </div>
+  );
+}
+
+const PhraseSortableWord: React.FC<{ id: string; word: string }> = ({ id, word }) => {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id });
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5 : 1,
+  };
+  return (
+    <div
+      ref={setNodeRef}
+      style={style}
+      {...attributes}
+      {...listeners}
+      className="px-4 py-3 bg-white border-2 border-indigo-200 rounded-2xl text-lg font-semibold text-indigo-800 cursor-grab active:cursor-grabbing select-none shadow-sm hover:border-indigo-400 transition-all"
+    >
+      {word}
+    </div>
+  );
+}
+
+function PhraseOrderExercise({ task, onValidate }: { task: PhraseOrderTask; onValidate: (correct: boolean, answer: string) => void }) {
+  const [orderedWords, setOrderedWords] = React.useState<Array<{ id: string; word: string }>>([]);
+
+  React.useEffect(() => {
+    const shuffled = [...task.words].sort(() => Math.random() - 0.5);
+    setOrderedWords(shuffled.map((word, i) => ({ id: `word-${i}`, word })));
+  }, [task]);
+
+  const sensors = useSensors(useSensor(PointerSensor));
+
+  function handleDragEnd(event: DragEndEvent) {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setOrderedWords(items => {
+        const oldIndex = items.findIndex(item => item.id === active.id);
+        const newIndex = items.findIndex(item => item.id === over.id);
+        return arrayMove(items, oldIndex, newIndex);
+      });
+    }
+  }
+
+  return (
+    <div className="flex flex-col items-center gap-8">
+      <h2 className="text-xl sm:text-2xl font-bold text-indigo-700">Remets les mots dans le bon ordre :</h2>
+      <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+        <SortableContext items={orderedWords.map(w => w.id)} strategy={horizontalListSortingStrategy}>
+          <div className="flex flex-wrap gap-3 justify-center w-full bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-6 min-h-[80px]">
+            {orderedWords.map(item => (
+              <PhraseSortableWord key={item.id} id={item.id} word={item.word} />
+            ))}
+          </div>
+        </SortableContext>
+      </DndContext>
+      <button
+        onClick={() => onValidate(orderedWords.map(w => w.word).join(' ') === task.words.join(' '), orderedWords.map(w => w.word).join(' '))}
+        className="px-8 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-2xl text-xl font-bold transition-all"
+      >
+        Vérifier ✓
+      </button>
+    </div>
+  );
+}
+
+function PhraseValidExercise({ task, onValidate }: { task: PhraseValidTask; onValidate: (correct: boolean, answer: string) => void }) {
+  return (
+    <div className="flex flex-col items-center gap-8">
+      <h2 className="text-xl sm:text-2xl font-bold text-indigo-700">Cette phrase est-elle correctement formée ?</h2>
+      <div className="w-full bg-indigo-50 border-2 border-indigo-200 rounded-3xl p-8 text-center">
+        <p className="text-2xl sm:text-3xl font-bold text-indigo-900">{task.sentence}</p>
+      </div>
+      <div className="flex gap-6 w-full">
+        <button
+          onClick={() => onValidate(task.isValid === true, 'Oui')}
+          className="flex-1 py-6 rounded-2xl text-2xl font-bold border-2 bg-green-100 border-green-300 text-green-800 hover:bg-green-200 transition-all"
+        >
+          Oui ✅
+        </button>
+        <button
+          onClick={() => onValidate(task.isValid === false, 'Non')}
+          className="flex-1 py-6 rounded-2xl text-2xl font-bold border-2 bg-red-100 border-red-300 text-red-800 hover:bg-red-200 transition-all"
+        >
+          Non ❌
+        </button>
+      </div>
+    </div>
+  );
+}
 
 export default ExerciseRunner;

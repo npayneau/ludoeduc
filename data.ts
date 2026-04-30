@@ -8,6 +8,8 @@ import { VERB_IDENTIFY_DATABASE, VERB_CONJUGATED_DATABASE, VERB_INFINITIVE_DATAB
 import { DET_IDENTIFY_DATABASE, DET_GENDER_DATABASE, DET_NUMBER_DATABASE, DET_WRITE_DATABASE, DET_CHOOSE_DATABASE, DET_ARTICLE_DATABASE } from './database/determiners';
 import { SILENT_LETTER_DATABASE, SPELLING_CHOICE_DATABASE } from './database/spelling';
 import { VOCAB_ALPHA_LETTERS_DATABASE, VOCAB_ALPHA_WORDS_DATABASE, VOCAB_SYNONYM_DATABASE, VOCAB_INTRUS_DATABASE, VOCAB_CONTRAIRE_DATABASE, VOCAB_FAMILY_DATABASE } from './database/vocabulary';
+import { PhraseTypeTask, PhrasePunctuationTask, PhraseOrderTask, PhraseValidTask } from './types';
+import { PHRASE_TYPE_DATABASE, PHRASE_PUNCTUATION_DATABASE, PHRASE_ORDER_DATABASE, PHRASE_VALID_DATABASE } from './database/phrases';
 
 /**
  * Sélectionne X phrases au hasard pour un niveau donné (Grammaire).
@@ -308,3 +310,17 @@ export const getVocabContraireQuestions = (level: Level, limit: number): VocabCo
 
 export const getVocabFamilyQuestions = (level: Level, limit: number): VocabFamilyTask[] =>
   VOCAB_FAMILY_DATABASE.filter(t => vocabLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+const phraseLevels = (level: Level): string[] => level === 'CE1' ? ['CE1'] : ['CE1', 'CE2'];
+
+export const getPhraseTypeQuestions = (level: Level, limit: number): PhraseTypeTask[] =>
+  PHRASE_TYPE_DATABASE.filter(t => phraseLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getPhrasePunctuationQuestions = (level: Level, limit: number): PhrasePunctuationTask[] =>
+  PHRASE_PUNCTUATION_DATABASE.filter(t => phraseLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getPhraseOrderQuestions = (level: Level, limit: number): PhraseOrderTask[] =>
+  PHRASE_ORDER_DATABASE.filter(t => phraseLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getPhraseValidQuestions = (level: Level, limit: number): PhraseValidTask[] =>
+  PHRASE_VALID_DATABASE.filter(t => phraseLevels(level).includes(t.level)).sort(() => 0.5 - Math.random()).slice(0, limit);

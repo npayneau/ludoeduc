@@ -6,7 +6,7 @@ const App: React.FC = () => {
   const [level, setLevel] = useState<Level | null>(null);
   const [subject, setSubject] = useState<'français' | 'maths' | 'autre' | null>(null);
   const [exerciseType, setExerciseType] = useState<string | null>(null);
-  const [gameState, setGameState] = useState<'intro' | 'configuringMath' | 'configuringDictation' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'playing' | 'summary'>('intro');
+  const [gameState, setGameState] = useState<'intro' | 'configuringMath' | 'configuringDictation' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'phraseMenu' | 'playing' | 'summary'>('intro');
   const [lastScore, setLastScore] = useState(0);
   const [timerDuration, setTimerDuration] = useState(4);
   const [selectedTables, setSelectedTables] = useState<number[]>([]);
@@ -34,6 +34,8 @@ const App: React.FC = () => {
       setGameState('playing');
     } else if (type.startsWith('vocab-')) {
       // handled directly from menu
+    } else if (type.startsWith('phrase-')) {
+      // handled directly from phraseMenu
     } else {
       setGameState('playing');
       setTotalQuestions(5);
@@ -175,6 +177,69 @@ const App: React.FC = () => {
           </div>
         </div>
         <Footer />
+      </div>
+    );
+  }
+
+  if (gameState === 'phraseMenu') {
+    return (
+      <div className="min-h-screen bg-green-50 flex flex-col">
+        <div className="flex-1 flex flex-col items-center justify-center p-4 sm:p-8">
+          <div className="w-full max-w-2xl">
+            <div className="flex items-center gap-4 mb-8">
+              <button
+                onClick={reset}
+                className="flex items-center gap-2 px-4 py-2 rounded-2xl bg-white border-2 border-green-200 text-green-700 hover:bg-green-100 transition-all font-semibold"
+              >
+                ← Retour
+              </button>
+              <h2 className="text-2xl sm:text-3xl font-bold text-green-700">Exercices sur la phrase</h2>
+            </div>
+
+            <div className="mb-6">
+              <p className="text-green-700 font-semibold mb-3">Nombre de questions :</p>
+              <div className="flex gap-3">
+                {[3, 5, 8, 10].map(n => (
+                  <button
+                    key={n}
+                    onClick={() => setTotalQuestions(n)}
+                    className={`px-4 py-2 rounded-xl font-bold border-2 transition-all ${totalQuestions === n ? 'bg-green-500 border-green-600 text-white' : 'bg-white border-green-200 text-green-700 hover:bg-green-100'}`}
+                  >
+                    {n}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-4">
+              {[
+                { type: 'grammaire', emoji: '🖍️', label: 'Nature des mots', desc: 'Identifie les classes grammaticales.', direct: true },
+                { type: 'phrase-type', emoji: '❓', label: 'Type de phrase', desc: 'Déclarative, impérative ou interrogative ?' },
+                { type: 'phrase-ponctuation', emoji: '🔚', label: 'Ponctuation', desc: 'Complète avec le bon signe de ponctuation.' },
+                { type: 'phrase-ordre', emoji: '🔀', label: 'Ordre des mots', desc: 'Remets les mots dans le bon ordre.' },
+                { type: 'phrase-valide', emoji: '✅', label: 'Phrase correcte ?', desc: 'Identifie les phrases bien formées.' },
+              ].map(item => (
+                <button
+                  key={item.type}
+                  onClick={() => {
+                    if (item.direct) {
+                      startExercise('français', item.type);
+                    } else {
+                      setSubject('français');
+                      setExerciseType(item.type);
+                      setGameState('playing');
+                    }
+                  }}
+                  className="group relative p-6 rounded-3xl bg-white border-2 border-green-100 hover:border-green-400 hover:bg-green-50 transition-all text-left"
+                >
+                  <h3 className="text-xl font-bold text-green-700 mb-1">{item.label}</h3>
+                  <p className="text-sm text-green-600/70">{item.desc}</p>
+                  <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">{item.emoji}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
@@ -587,6 +652,14 @@ const App: React.FC = () => {
               <h3 className="text-xl sm:text-2xl font-bold text-emerald-700 mb-1 sm:mb-2">Nature des mots</h3>
               <p className="text-sm sm:text-base text-emerald-600/70">Identifie les classes grammaticales.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all text-2xl">🖍️</span>
+            </button>
+            <button
+              onClick={() => setGameState('phraseMenu')}
+              className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
+            >
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Exercices sur la phrase</h3>
+              <p className="text-sm sm:text-base text-green-600/70">Types, ponctuation, ordre des mots et analyse.</p>
+              <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">📜</span>
             </button>
             <button
               onClick={() => startExercise('français', 'conjugaison')}
