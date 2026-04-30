@@ -62,6 +62,17 @@ const App: React.FC = () => {
     setTotalQuestions(5);
   };
 
+  const sectionFromType = (type: string | null): typeof gameState => {
+    if (!type) return 'intro';
+    if (type.startsWith('noms-')) return 'nomsMenu';
+    if (type.startsWith('verbes-')) return 'verbesMenu';
+    if (type.startsWith('det-')) return 'determineursMenu';
+    if (type.startsWith('ortho-')) return 'orthographeMenu';
+    if (type.startsWith('vocab-')) return 'vocabulaireMenu';
+    if (type.startsWith('phrase-') || type === 'grammaire') return 'phraseMenu';
+    return 'intro';
+  };
+
   /**
    * Composant Footer avec injection du script Buy Me a Coffee
    */
@@ -516,15 +527,26 @@ const App: React.FC = () => {
   }
 
   if (gameState === 'playing' && subject && exerciseType) {
+    const parentSection = sectionFromType(exerciseType);
     return (
       <div className="min-h-screen p-4 sm:p-6 bg-indigo-50">
         <div className="max-w-4xl mx-auto flex flex-col sm:flex-row items-center justify-between mb-6 sm:mb-8 gap-4">
-          <button
-            onClick={reset}
-            className="text-indigo-600 font-bold flex items-center gap-2 bg-white sm:bg-transparent px-4 py-2 rounded-xl transition-all shadow-sm sm:shadow-none"
-          >
-            ← Menu principal
-          </button>
+          <div className="flex gap-2">
+            {parentSection !== 'intro' && (
+              <button
+                onClick={() => setGameState(parentSection)}
+                className="text-indigo-600 font-bold flex items-center gap-2 bg-white px-4 py-2 rounded-xl transition-all shadow-sm hover:bg-indigo-50"
+              >
+                ← Retour
+              </button>
+            )}
+            <button
+              onClick={reset}
+              className="text-gray-400 font-bold flex items-center gap-2 bg-white px-4 py-2 rounded-xl transition-all shadow-sm hover:bg-gray-50"
+            >
+              ⌂ Menu
+            </button>
+          </div>
           <div className="bg-white px-4 py-2 rounded-xl shadow-sm flex flex-wrap justify-center gap-4 text-xs sm:text-base">
             <div>
               <span className="text-gray-500">Niveau : </span>
@@ -557,18 +579,29 @@ const App: React.FC = () => {
   }
 
   if (gameState === 'summary') {
+    const parentSection = sectionFromType(exerciseType);
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
         <div className="bg-white p-8 sm:p-12 rounded-3xl shadow-2xl text-center max-w-md w-full border-b-8 border-green-200">
           <div className="text-7xl sm:text-9xl mb-6">🏆</div>
           <h2 className="text-4xl sm:text-5xl font-title text-green-600 mb-4">Félicitations !</h2>
           <p className="text-xl sm:text-2xl text-gray-600 mb-8">Tu as obtenu <span className="text-3xl sm:text-4xl font-bold text-green-500">{lastScore} / {totalQuestions}</span> bonnes réponses !</p>
-          <button
-            onClick={reset}
-            className="w-full bg-green-500 text-white py-5 sm:py-6 rounded-2xl text-xl sm:text-2xl font-bold hover:bg-green-600 transition-all shadow-lg active:scale-95"
-          >
-            Continuer
-          </button>
+          <div className="flex flex-col gap-3">
+            {parentSection !== 'intro' && (
+              <button
+                onClick={() => setGameState(parentSection)}
+                className="w-full bg-green-500 text-white py-4 sm:py-5 rounded-2xl text-lg sm:text-xl font-bold hover:bg-green-600 transition-all shadow-lg active:scale-95"
+              >
+                ← Retour aux exercices
+              </button>
+            )}
+            <button
+              onClick={reset}
+              className="w-full bg-white text-gray-400 border-2 border-gray-200 py-3 sm:py-4 rounded-2xl text-base sm:text-lg font-bold hover:bg-gray-50 transition-all active:scale-95"
+            >
+              ⌂ Menu principal
+            </button>
+          </div>
         </div>
         <Footer />
       </div>
