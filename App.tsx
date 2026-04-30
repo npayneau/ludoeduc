@@ -203,7 +203,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
         <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
-          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Exercices sur la phrase 📜</h2>
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Défis sur la phrase 📜</h2>
           <p className="text-gray-500 text-sm mb-8">Choisis un exercice :</p>
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             {phraseExercises.map(item => (
@@ -241,7 +241,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
         <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
-          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Exercices sur les noms 🏷️</h2>
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Défis sur les noms 🏷️</h2>
           <p className="text-gray-500 text-sm mb-8">Choisis un exercice :</p>
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             <button onClick={() => { setSubject('français'); setExerciseType('noms-tri'); setGameState('playing'); }}
@@ -358,7 +358,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
         <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
-          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Exercices sur les verbes ✍️</h2>
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Défis sur les verbes ✍️</h2>
           <p className="text-gray-500 text-sm mb-8">Choisis un exercice :</p>
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             {exercises.map(ex => (
@@ -400,7 +400,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
         <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
-          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Exercices sur les déterminants 📌</h2>
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Défis sur les déterminants 📌</h2>
           <p className="text-gray-500 text-sm mb-8">Choisis un exercice :</p>
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             {exercises.map(ex => (
@@ -452,7 +452,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
         <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
-          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Exercices d'orthographe ✏️</h2>
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Défis d'orthographe ✏️</h2>
           <p className="text-gray-500 text-sm mb-8">Choisis un exercice :</p>
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             {exercises.map(ex => (
@@ -495,7 +495,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen flex flex-col items-center justify-center p-4 sm:p-6 bg-green-50">
         <div className="bg-white p-6 sm:p-10 rounded-3xl shadow-2xl max-w-2xl w-full border-b-[8px] sm:border-b-[12px] border-green-300">
-          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Exercices de vocabulaire 🔤</h2>
+          <h2 className="text-3xl sm:text-4xl font-title text-green-700 mb-2">Défis de vocabulaire 🔤</h2>
           <p className="text-gray-500 text-sm mb-8">Choisis un exercice :</p>
           <div className="grid sm:grid-cols-2 gap-4 mb-8">
             {exercises.map(ex => (
@@ -664,7 +664,7 @@ const App: React.FC = () => {
               onClick={() => setGameState('phraseMenu')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
             >
-              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Exercices sur la phrase</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Défis sur la phrase</h3>
               <p className="text-sm sm:text-base text-green-600/70">Types, ponctuation, ordre des mots et analyse.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">📜</span>
             </button>
@@ -696,7 +696,7 @@ const App: React.FC = () => {
               onClick={() => setGameState('nomsMenu')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
             >
-              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Exercices sur les noms</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Défis sur les noms</h3>
               <p className="text-sm sm:text-base text-green-600/70">Trier, identifier, pluriel et genre des noms.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">🏷️</span>
             </button>
@@ -704,7 +704,7 @@ const App: React.FC = () => {
               onClick={() => setGameState('verbesMenu')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
             >
-              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Exercices sur les verbes</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Défis sur les verbes</h3>
               <p className="text-sm sm:text-base text-green-600/70">Identifier, infinitif, temps et conjugaison.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">✍️</span>
             </button>
@@ -712,7 +712,7 @@ const App: React.FC = () => {
               onClick={() => setGameState('determineursMenu')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
             >
-              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Exercices sur les déterminants</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Défis sur les déterminants</h3>
               <p className="text-sm sm:text-base text-green-600/70">Identifier, genre, nombre et articles.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">📌</span>
             </button>
@@ -720,7 +720,7 @@ const App: React.FC = () => {
               onClick={() => setGameState('orthographeMenu')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
             >
-              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Exercices d'orthographe</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Défis d'orthographe</h3>
               <p className="text-sm sm:text-base text-green-600/70">Lettres muettes, s/ss, n/m, c/ç, g/ge, g/gu.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">✏️</span>
             </button>
@@ -728,7 +728,7 @@ const App: React.FC = () => {
               onClick={() => setGameState('vocabulaireMenu')}
               className="group relative p-6 sm:p-8 rounded-3xl bg-green-50 border-2 border-green-100 hover:border-green-400 hover:bg-green-100 transition-all text-left"
             >
-              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Exercices de vocabulaire</h3>
+              <h3 className="text-xl sm:text-2xl font-bold text-green-700 mb-1 sm:mb-2">Défis de vocabulaire</h3>
               <p className="text-sm sm:text-base text-green-600/70">Alphabet, synonymes, contraires, familles de mots.</p>
               <span className="hidden sm:block absolute right-6 top-1/2 -translate-y-1/2 text-2xl group-hover:scale-125 transition-all">🔤</span>
             </button>
