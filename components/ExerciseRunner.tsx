@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
-import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, VocabFamilyWord, PhraseTypeTask, PhrasePunctuationTask, PhraseOrderTask, PhraseValidTask, AdverbIdentifyTask, AdjAdvTransformTask } from '../types';
-import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions, getSilentLetterQuestions, getSpellingChoiceQuestions, getVocabAlphaLettersQuestions, getVocabAlphaWordsQuestions, getVocabSynonymQuestions, getVocabIntrusQuestions, getVocabContraireQuestions, getVocabFamilyQuestions, getPhraseTypeQuestions, getPhrasePunctuationQuestions, getPhraseOrderQuestions, getPhraseValidQuestions, getAdverbIdentifyQuestions, getAdjToAdvQuestions, getAdvToAdjQuestions } from '../data';
+import { Level, GrammarSentence, ConjugationTask, MathTask, DictationTask, HoleyDictationTask, TimeTask, Category, NounSortTask, NounIdentifyTask, NounIdentifyWord, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetIdentifyWord, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, VocabFamilyWord, PhraseTypeTask, PhrasePunctuationTask, PhraseOrderTask, PhraseValidTask, AdverbIdentifyTask, AdjAdvTransformTask, NumberLineTask, ShapeIdTask, PerimeterTask, ParallelTask } from '../types';
+import { getGrammarQuestions, getConjugationQuestions, getMathQuestions, getDictationQuestions, getHoleyDictationQuestions, getTimeQuestions, getNounSortQuestions, getNounIdentifyQuestions, getNounPluralQuestions, getNounGenderQuestions, getVerbIdentifyQuestions, getVerbConjugatedQuestions, getVerbInfinitiveQuestions, getVerbTenseQuestions, getVerbConjugateExQuestions, getDetIdentifyQuestions, getDetGenderQuestions, getDetNumberQuestions, getDetWriteQuestions, getDetChooseQuestions, getDetArticleQuestions, getSilentLetterQuestions, getSpellingChoiceQuestions, getVocabAlphaLettersQuestions, getVocabAlphaWordsQuestions, getVocabSynonymQuestions, getVocabIntrusQuestions, getVocabContraireQuestions, getVocabFamilyQuestions, getPhraseTypeQuestions, getPhrasePunctuationQuestions, getPhraseOrderQuestions, getPhraseValidQuestions, getAdverbIdentifyQuestions, getAdjToAdvQuestions, getAdvToAdjQuestions, getNumberLineQuestions, getShapeIdQuestions, getPerimeterQuestions, getParallelQuestions } from '../data';
+import { ShapeIdExercise, PerimeterExercise, ParallelExercise } from './GeometryExercise';
 import { CATEGORY_COLORS, CATEGORY_LABELS, TIMINGS } from '../constants';
 import { DndContext, closestCenter, KeyboardSensor, PointerSensor, useSensor, useSensors, DragEndEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, horizontalListSortingStrategy, useSortable } from '@dnd-kit/sortable';
@@ -14,6 +15,7 @@ interface Props {
   selectedTables?: number[];
   additionMax?: number;
   totalQuestions?: number;
+  autoValidateDelay?: number;
   onFinish: (score: number) => void;
 }
 
@@ -30,7 +32,7 @@ const ENCOURAGEMENTS = [
   "Toppisime ! 🌈"
 ];
 
-const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration = 4, selectedTables, additionMax, totalQuestions = 5, onFinish }) => {
+const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration = 4, selectedTables, additionMax, totalQuestions = 5, autoValidateDelay = 1000, onFinish }) => {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [questions, setQuestions] = useState<any[]>([]);
   const [score, setScore] = useState(0);
@@ -79,7 +81,11 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
     } else if (subject === 'autre') {
       if (type === 'time') q = getTimeQuestions(level, totalQuestions);
     } else {
-      q = getMathQuestions(level, type, selectedTables, additionMax, totalQuestions);
+      if (type === 'shape-id') q = getShapeIdQuestions(level, totalQuestions);
+      else if (type === 'perimeter') q = getPerimeterQuestions(level, totalQuestions);
+      else if (type === 'parallel') q = getParallelQuestions(level, totalQuestions);
+      else if (type === 'numberline') q = getNumberLineQuestions(level, totalQuestions);
+      else q = getMathQuestions(level, type, selectedTables, additionMax, totalQuestions);
     }
     setQuestions(q);
     setCurrentIdx(0);
@@ -316,10 +322,23 @@ const ExerciseRunner: React.FC<Props> = ({ level, subject, type, timerDuration =
         {type === 'phrase-valide' && <PhraseValidExercise task={current as PhraseValidTask} onValidate={handleValidation} />}
         {type === 'adv-identification' && <AdverbIdentifyExercise task={current as AdverbIdentifyTask} onValidate={handleValidation} />}
         {(type === 'adv-adj-to-adv' || type === 'adv-adv-to-adj') && <AdjAdvTransformExercise task={current as AdjAdvTransformTask} type={type} onValidate={handleValidation} />}
-        {subject === 'maths' && (
+        {type === 'shape-id' && (
+          <ShapeIdExercise task={current as ShapeIdTask} onValidate={handleValidation} />
+        )}
+        {type === 'perimeter' && (
+          <PerimeterExercise task={current as PerimeterTask} onValidate={handleValidation} />
+        )}
+        {type === 'parallel' && (
+          <ParallelExercise task={current as ParallelTask} onValidate={handleValidation} />
+        )}
+        {subject === 'maths' && type === 'numberline' && (
+          <NumberLineExercise task={current as NumberLineTask} onValidate={handleValidation} />
+        )}
+        {subject === 'maths' && type !== 'numberline' && type !== 'shape-id' && type !== 'perimeter' && type !== 'parallel' && (
           <MathDisplay
             task={current as MathTask}
             timerDuration={timerDuration}
+            autoValidateDelay={autoValidateDelay}
             onValidate={handleValidation}
           />
         )}
@@ -552,7 +571,7 @@ const DictationExercise: React.FC<{ task: DictationTask, onValidate: (c: boolean
 
 
 
-const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate: (c: boolean, v?: string) => void }> = ({ task, timerDuration, onValidate }) => {
+const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, autoValidateDelay: number, onValidate: (c: boolean, v?: string) => void }> = ({ task, timerDuration, autoValidateDelay, onValidate }) => {
   const [value, setValue] = useState('');
   const [decompValues, setDecompValues] = useState<Record<string, string>>({ M: '', C: '', D: '', U: '' });
   const [additiveValues, setAdditiveValues] = useState<Record<string, string>>({ M: '', C: '', D: '', U: '' });
@@ -560,6 +579,7 @@ const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate:
   const [progress, setProgress] = useState(0);
   const timerRef = useRef<number | null>(null);
   const startTimeRef = useRef<number | null>(null);
+  const autoValidateRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -582,6 +602,7 @@ const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate:
     setDecompValues({ M: '', C: '', D: '', U: '' });
     setAdditiveValues({ M: '', C: '', D: '', U: '' });
     setProgress(0);
+    if (autoValidateRef.current) clearTimeout(autoValidateRef.current);
 
     if (isTimed) {
       startTimeRef.current = Date.now();
@@ -712,7 +733,20 @@ const MathDisplay: React.FC<{ task: MathTask, timerDuration: number, onValidate:
             type="text"
             inputMode="numeric"
             value={value}
-            onChange={(e) => setValue(e.target.value)}
+            onChange={(e) => {
+              const newVal = e.target.value;
+              setValue(newVal);
+              if (autoValidateDelay > 0 && isTimed) {
+                if (autoValidateRef.current) clearTimeout(autoValidateRef.current);
+                if (newVal.trim()) {
+                  autoValidateRef.current = setTimeout(() => {
+                    if (timerRef.current) cancelAnimationFrame(timerRef.current);
+                    onValidate(newVal.trim() === String(task.correctAnswer), newVal);
+                    setValue('');
+                  }, autoValidateDelay);
+                }
+              }
+            }}
             onKeyDown={(e) => e.key === 'Enter' && check()}
             className={`text-4xl sm:text-6xl p-6 sm:p-8 border-4 rounded-[1.5rem] sm:rounded-[2rem] w-full max-w-[200px] sm:max-w-[280px] text-center font-title transition-all ${isTimeExceeded ? 'border-red-500 animate-pulse ring-4 ring-red-100' : 'border-indigo-100 focus:border-indigo-400'}`}
             placeholder="?"
@@ -1912,6 +1946,184 @@ const AdjAdvTransformExercise: React.FC<{ task: AdjAdvTransformTask; type: strin
       )}
       <button onClick={check} className="bg-indigo-600 text-white px-10 py-4 rounded-2xl text-xl font-bold hover:bg-indigo-700 shadow-xl transition-all">
         Valider ✍️
+      </button>
+    </div>
+  );
+};
+
+// ─── Droite graduée ──────────────────────────────────────────────────────────
+
+const NumberLineExercise: React.FC<{
+  task: NumberLineTask;
+  onValidate: (c: boolean, v?: string) => void;
+}> = ({ task, onValidate }) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const isDraggingRef = useRef(false);
+
+  const range = task.max - task.min;
+  const decimals = task.snapStep < 1
+    ? String(task.snapStep).split('.')[1]?.length ?? 1
+    : 0;
+
+  const snapToStep = (raw: number): number => {
+    const snapped = Math.round(raw / task.snapStep) * task.snapStep;
+    const clamped = Math.max(task.min, Math.min(task.max, snapped));
+    return parseFloat(clamped.toFixed(decimals));
+  };
+
+  const centerValue = snapToStep(task.min + task.snapStep);
+  const [userValue, setUserValue] = useState<number>(centerValue);
+
+  // Reset to start when task changes
+  useEffect(() => {
+    const d = task.snapStep < 1 ? String(task.snapStep).split('.')[1]?.length ?? 1 : 0;
+    setUserValue(parseFloat((task.min + task.snapStep).toFixed(d)));
+  }, [task]);
+
+  const valueFromClientX = (clientX: number): number => {
+    if (!containerRef.current) return task.min;
+    const rect = containerRef.current.getBoundingClientRect();
+    const ratio = Math.max(0, Math.min(1, (clientX - rect.left) / rect.width));
+    return snapToStep(task.min + ratio * range);
+  };
+
+  const percentOf = (value: number): number =>
+    ((value - task.min) / range) * 100;
+
+  const handlePointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
+    isDraggingRef.current = true;
+    containerRef.current?.setPointerCapture(e.pointerId);
+    setUserValue(valueFromClientX(e.clientX));
+  };
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!isDraggingRef.current) return;
+    setUserValue(valueFromClientX(e.clientX));
+  };
+  const handlePointerUp = () => { isDraggingRef.current = false; };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLDivElement>) => {
+    if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+    e.preventDefault();
+    const step = task.snapStep;
+    setUserValue(prev => {
+      const base = prev ?? task.min;
+      const next = e.key === 'ArrowRight' ? base + step : base - step;
+      return snapToStep(next);
+    });
+  };
+
+  // Build tick arrays
+  const mainTicks: number[] = [];
+  for (let v = task.min; v <= task.max + 1e-9; v += task.graduationStep) {
+    mainTicks.push(parseFloat(v.toFixed(decimals)));
+  }
+  const mainSet = new Set(mainTicks.map(t => t.toFixed(6)));
+
+  const intermediateTicks: number[] = [];
+  if (task.intermediateStep !== null) {
+    for (let v = task.min; v <= task.max + 1e-9; v += task.intermediateStep) {
+      const rounded = parseFloat(v.toFixed(decimals));
+      if (!mainSet.has(rounded.toFixed(6))) intermediateTicks.push(rounded);
+    }
+  }
+
+  const formatVal = (v: number): string =>
+    decimals > 0 ? v.toFixed(decimals) : String(v);
+
+  const intermediateMarker = task.intermediateMarker ?? 'line';
+
+  const toInt = (v: number) => Math.round(v / task.snapStep);
+  const check = () => {
+    if (userValue === null) return;
+    onValidate(toInt(userValue) === toInt(task.target), formatVal(userValue));
+  };
+
+  return (
+    <div className="flex flex-col items-center gap-6 sm:gap-10 w-full">
+      <h3 className="text-lg sm:text-2xl font-bold text-indigo-400 uppercase tracking-widest">
+        Droite graduée 📏
+      </h3>
+
+      {/* Target number */}
+      <div className="text-center">
+        <p className="text-gray-400 text-sm mb-2 font-medium">Place ce nombre sur la droite :</p>
+        <div className="text-5xl sm:text-7xl font-title text-indigo-900 bg-amber-50 px-8 py-4 rounded-2xl border-4 border-dashed border-amber-200 inline-block">
+          {formatVal(task.target)}
+        </div>
+      </div>
+
+      {/* Number line */}
+      <div className="w-full max-w-2xl px-4 sm:px-8">
+        <div
+          ref={containerRef}
+          className="relative cursor-crosshair select-none touch-none outline-none"
+          style={{ height: '90px' }}
+          tabIndex={0}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onKeyDown={handleKeyDown}
+        >
+          {/* Clickable zone (invisible, full height) */}
+          <div className="absolute inset-0" />
+
+          {/* The line bar */}
+          <div className="absolute left-0 right-0 top-[30px] h-2 bg-indigo-300 rounded-full shadow-inner" />
+
+          {/* Main ticks — labels uniquement sur les bornes */}
+          {mainTicks.map((tick) => {
+            const isEndpoint = tick === task.min || tick === task.max;
+            return (
+              <div
+                key={tick}
+                className="absolute flex flex-col items-center"
+                style={{ left: `${percentOf(tick)}%`, top: '18px', transform: 'translateX(-50%)' }}
+              >
+                <div className={`w-0.5 bg-indigo-700 ${isEndpoint ? 'h-6' : 'h-4'}`} />
+                {isEndpoint && (
+                  <span className="text-[10px] sm:text-xs font-bold text-indigo-700 mt-1 whitespace-nowrap">
+                    {formatVal(tick)}
+                  </span>
+                )}
+              </div>
+            );
+          })}
+
+          {/* Intermediate ticks */}
+          {intermediateTicks.map((tick) => (
+            <div
+              key={tick}
+              className="absolute"
+              style={{ left: `${percentOf(tick)}%`, top: '25px', transform: 'translateX(-50%)' }}
+            >
+              {intermediateMarker === 'dot'
+                ? <div className="w-px h-1.5 bg-indigo-500" />
+                : <div className="w-px h-3 bg-indigo-400" />}
+            </div>
+          ))}
+
+          {/* User marker — flèche dont la pointe repose sur la règle */}
+          <div
+            className="absolute pointer-events-none"
+            style={{ left: `${percentOf(userValue)}%`, top: '0px', transform: 'translateX(-50%)' }}
+          >
+            <svg width="24" height="30" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <line x1="12" y1="0" x2="12" y2="22" stroke="#d97706" strokeWidth="3" strokeLinecap="round" />
+              <polygon points="12,30 5,18 19,18" fill="#fbbf24" stroke="#d97706" strokeWidth="1.5" strokeLinejoin="round" />
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <p className="text-sm text-gray-400 italic">
+        👆 Clique ou glisse — ⌨️ utilise ← → pour ajuster
+      </p>
+
+      <button
+        onClick={check}
+        className="w-full sm:w-auto px-12 sm:px-20 py-4 sm:py-6 rounded-2xl sm:rounded-3xl text-xl sm:text-2xl font-bold shadow-xl transition-all bg-indigo-600 text-white hover:bg-indigo-700 hover:scale-105 active:scale-95"
+      >
+        Valider 🎯
       </button>
     </div>
   );
