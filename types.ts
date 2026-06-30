@@ -279,7 +279,18 @@ export interface PhraseValidTask {
   level: Level;
 }
 
-// Défis Adverbes
+// Droite graduée
+export interface NumberLineTask {
+  id: number;
+  min: number;
+  max: number;
+  target: number;
+  graduationStep: number;       // pas des graduations principales (avec étiquette)
+  intermediateStep: number | null; // pas des tirets intermédiaires (sans étiquette, null = aucun)
+  intermediateMarker?: 'line' | 'dot';
+  snapStep: number;             // précision de la réponse de l'élève
+  level: Level;
+}
 export interface AdverbIdentifyTask {
   id: number;
   words: { word: string; isAdverb: boolean }[];
@@ -292,4 +303,36 @@ export interface AdjAdvTransformTask {
   to: string;
   hint?: string;
   level: Level;
+}
+
+// Géométrie
+
+export interface ShapeChoice {
+  shapeKey: string;
+  label: string;
+  isCorrect: boolean;
+}
+
+export interface ShapeIdTask {
+  id: number;
+  level: Level;
+  targetShape: string;
+  choices: ShapeChoice[];
+}
+
+export interface PerimeterTask {
+  id: number;
+  level: Level;
+  shapeKey: string;
+  sides: number[];
+  answer: number;
+  unit: string;
+}
+
+export interface ParallelTask {
+  id: number;
+  level: Level;
+  lineA: { x1: number; y1: number; x2: number; y2: number };
+  lineB: { x1: number; y1: number; x2: number; y2: number };
+  answer: 'parallel' | 'perpendicular' | 'neither';
 }
