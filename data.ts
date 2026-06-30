@@ -1,4 +1,4 @@
-import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask, NounSortTask, NounIdentifyTask, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, AdverbIdentifyTask, AdjAdvTransformTask } from './types';
+import { GrammarSentence, ConjugationTask, MathTask, Level, Tense, DictationTask, HoleyDictationTask, TimeTask, NounSortTask, NounIdentifyTask, NounPluralTask, NounGenderTask, VerbIdentifyTask, VerbConjugatedTask, VerbInfinitiveTask, VerbTenseTask, VerbConjugateExTask, DetIdentifyTask, DetGenderTask, DetNumberTask, DetWriteTask, DetChooseTask, DetArticleSortTask, SilentLetterTask, SpellingChoiceTask, VocabAlphaTask, VocabSynonymTask, VocabIntrusTask, VocabContraireTask, VocabFamilyTask, AdverbIdentifyTask, AdjAdvTransformTask, NumberLineTask, ShapeIdTask, PerimeterTask, ParallelTask } from './types';
 import { SENTENCE_DATABASE } from './database/sentences';
 import { VERB_DATABASE } from './database/verbs';
 import { MATH_DATABASE } from './database/math';
@@ -10,6 +10,7 @@ import { SILENT_LETTER_DATABASE, SPELLING_CHOICE_DATABASE } from './database/spe
 import { VOCAB_ALPHA_LETTERS_DATABASE, VOCAB_ALPHA_WORDS_DATABASE, VOCAB_SYNONYM_DATABASE, VOCAB_INTRUS_DATABASE, VOCAB_CONTRAIRE_DATABASE, VOCAB_FAMILY_DATABASE } from './database/vocabulary';
 import { PhraseTypeTask, PhrasePunctuationTask, PhraseOrderTask, PhraseValidTask } from './types';
 import { PHRASE_TYPE_DATABASE, PHRASE_PUNCTUATION_DATABASE, PHRASE_ORDER_DATABASE, PHRASE_VALID_DATABASE } from './database/phrases';
+import { generateNumberLineQuestions } from './database/numberline';
 
 /**
  * Sélectionne X phrases au hasard pour un niveau donné (Grammaire).
@@ -342,3 +343,17 @@ export const getAdvToAdjQuestions = (level: Level, limit: number): AdjAdvTransfo
   const levels: Level[] = level === 'CM2' ? ['CE2', 'CM1', 'CM2'] : level === 'CM1' ? ['CE2', 'CM1'] : ['CE2'];
   return shuffle(advToAdjDB.filter(q => levels.includes(q.level))).slice(0, limit);
 };
+
+export const getNumberLineQuestions = (level: Level, limit: number): NumberLineTask[] =>
+  generateNumberLineQuestions(level, limit);
+
+import { SHAPE_ID_DATABASE, PERIMETER_DATABASE, PARALLEL_DATABASE } from './database/geometry';
+
+export const getShapeIdQuestions = (level: Level, limit: number): ShapeIdTask[] =>
+  SHAPE_ID_DATABASE.filter(q => q.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getPerimeterQuestions = (level: Level, limit: number): PerimeterTask[] =>
+  PERIMETER_DATABASE.filter(q => q.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
+
+export const getParallelQuestions = (level: Level, limit: number): ParallelTask[] =>
+  PARALLEL_DATABASE.filter(q => q.level === level).sort(() => 0.5 - Math.random()).slice(0, limit);
