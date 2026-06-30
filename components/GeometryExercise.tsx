@@ -65,38 +65,39 @@ function getPerimeterShapeData(shapeKey: string, sides: number[], unit: string):
   const label = (i: number) => `${fmt(sides[i])} ${unit}`;
 
   if (shapeKey === 'square') {
-    return { points: '30,30 190,30 190,190 30,190', isCircle: false, sideAnnotations: [
-      { label: label(0), pos: { x: 110, y: 20,  anchor: 'middle' } },
-      { label: label(1), pos: { x: 205, y: 115, anchor: 'start'  } },
-      { label: label(2), pos: { x: 110, y: 207, anchor: 'middle' } },
-      { label: label(3), pos: { x: 15,  y: 115, anchor: 'end'    } },
+    // forme centrée dans viewBox 280x260, marges suffisantes pour les labels
+    return { points: '50,40 220,40 220,210 50,210', isCircle: false, sideAnnotations: [
+      { label: label(0), pos: { x: 135, y: 28,  anchor: 'middle' } },
+      { label: label(1), pos: { x: 235, y: 130, anchor: 'start'  } },
+      { label: label(2), pos: { x: 135, y: 228, anchor: 'middle' } },
+      { label: label(3), pos: { x: 35,  y: 130, anchor: 'end'    } },
     ]};
   }
   if (shapeKey === 'rectangle') {
-    return { points: '20,60 200,60 200,160 20,160', isCircle: false, sideAnnotations: [
-      { label: label(0), pos: { x: 110, y: 50,  anchor: 'middle' } },
-      { label: label(1), pos: { x: 213, y: 115, anchor: 'start'  } },
-      { label: label(2), pos: { x: 110, y: 177, anchor: 'middle' } },
-      { label: label(3), pos: { x: 7,   y: 115, anchor: 'end'    } },
+    return { points: '30,75 250,75 250,185 30,185', isCircle: false, sideAnnotations: [
+      { label: label(0), pos: { x: 140, y: 62,  anchor: 'middle' } },
+      { label: label(1), pos: { x: 262, y: 135, anchor: 'start'  } },
+      { label: label(2), pos: { x: 140, y: 205, anchor: 'middle' } },
+      { label: label(3), pos: { x: 18,  y: 135, anchor: 'end'    } },
     ]};
   }
   if (shapeKey === 'triangle') {
-    return { points: '110,20 200,180 20,180', isCircle: false, sideAnnotations: [
-      { label: label(0), pos: { x: 163, y: 90,  anchor: 'start'  } },
-      { label: label(1), pos: { x: 110, y: 196, anchor: 'middle' } },
-      { label: label(2), pos: { x: 55,  y: 90,  anchor: 'end'    } },
+    return { points: '135,30 240,210 30,210', isCircle: false, sideAnnotations: [
+      { label: label(0), pos: { x: 200, y: 110, anchor: 'start'  } },
+      { label: label(1), pos: { x: 135, y: 232, anchor: 'middle' } },
+      { label: label(2), pos: { x: 68,  y: 110, anchor: 'end'    } },
     ]};
   }
   if (shapeKey === 'pentagon') {
-    return { points: '110,15 200,75 170,185 50,185 20,75', isCircle: false, sideAnnotations: [
-      { label: label(0), pos: { x: 163, y: 38,  anchor: 'start'  } },
-      { label: label(1), pos: { x: 195, y: 140, anchor: 'start'  } },
-      { label: label(2), pos: { x: 115, y: 202, anchor: 'middle' } },
-      { label: label(3), pos: { x: 25,  y: 140, anchor: 'end'    } },
-      { label: label(4), pos: { x: 55,  y: 38,  anchor: 'end'    } },
+    return { points: '135,25 230,90 200,210 70,210 40,90', isCircle: false, sideAnnotations: [
+      { label: label(0), pos: { x: 195, y: 50,  anchor: 'start'  } },
+      { label: label(1), pos: { x: 238, y: 158, anchor: 'start'  } },
+      { label: label(2), pos: { x: 135, y: 232, anchor: 'middle' } },
+      { label: label(3), pos: { x: 28,  y: 158, anchor: 'end'    } },
+      { label: label(4), pos: { x: 72,  y: 50,  anchor: 'end'    } },
     ]};
   }
-  return { points: '30,30 190,30 190,190 30,190', isCircle: false, sideAnnotations: [] };
+  return { points: '50,40 220,40 220,210 50,210', isCircle: false, sideAnnotations: [] };
 }
 
 export const ShapeIdExercise: React.FC<{
@@ -111,6 +112,9 @@ export const ShapeIdExercise: React.FC<{
     if (selected !== null) return;
     setSelected(choice.shapeKey);
     onValidate(choice.isCorrect, choice.label);
+    if (!choice.isCorrect) {
+      setTimeout(() => setSelected(null), 1000);
+    }
   };
 
   return (
@@ -172,7 +176,7 @@ export const PerimeterExercise: React.FC<{
         Calcule le périmètre 📐
       </h3>
       <div className="bg-white rounded-2xl border-2 border-indigo-100 p-4 shadow-md">
-        <svg viewBox="0 0 220 220" width="220" height="220">
+        <svg viewBox="0 0 280 250" width="280" height="250">
           {!isCircle && (
             <polygon points={points} fill="#e0e7ff" stroke="#6366f1" strokeWidth="3" />
           )}
@@ -244,6 +248,9 @@ export const ParallelExercise: React.FC<{
     if (selected !== null) return;
     setSelected(choice);
     onValidate(choice === task.answer, PARALLEL_LABELS[choice]);
+    if (choice !== task.answer) {
+      setTimeout(() => setSelected(null), 1000);
+    }
   };
 
   return (
@@ -260,7 +267,7 @@ export const ParallelExercise: React.FC<{
             stroke="#f59e0b" strokeWidth="3" strokeLinecap="round" />
         </svg>
       </div>
-      <div className={`grid gap-3 w-full max-w-sm ${options.length === 2 ? 'grid-cols-2' : 'grid-cols-3'}`}>
+      <div className="flex flex-col sm:grid sm:grid-cols-3 gap-3 w-full max-w-sm">
         {options.map(opt => {
           const isSelected = selected === opt;
           const isCorrect = opt === task.answer;
@@ -269,7 +276,7 @@ export const ParallelExercise: React.FC<{
               key={opt}
               onClick={() => handleChoice(opt)}
               disabled={selected !== null}
-              className={`py-3 px-2 rounded-2xl font-bold text-sm sm:text-base border-4 transition-all shadow
+              className={`py-3 px-3 rounded-2xl font-bold text-sm border-4 transition-all shadow text-center break-words
                 ${selected === null ? 'border-indigo-100 bg-white hover:border-amber-400 hover:bg-amber-50 cursor-pointer' : ''}
                 ${isSelected && isCorrect  ? 'border-green-400 bg-green-50 text-green-700' : ''}
                 ${isSelected && !isCorrect ? 'border-red-400 bg-red-50 text-red-700' : ''}

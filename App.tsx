@@ -2,7 +2,7 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Level, MathType } from './types';
 import ExerciseRunner from './components/ExerciseRunner';
 
-type GameState = 'intro' | 'configuringMath' | 'configuringDictation' | 'dicteeMenu' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'phraseMenu' | 'adverbesMenu' | 'playing' | 'summary';
+type GameState = 'intro' | 'configuringMath' | 'configuringDictation' | 'dicteeMenu' | 'nomsMenu' | 'nomsMenuPluriel' | 'nomsMenuGenre' | 'verbesMenu' | 'determineursMenu' | 'orthographeMenu' | 'vocabulaireMenu' | 'phraseMenu' | 'adverbesMenu' | 'geometrieMenu' | 'playing' | 'summary';
 
 const BASE = '/ludoeduc';
 const getHistoryPath = (gs: GameState, et: string | null): string => {
@@ -18,6 +18,7 @@ const getHistoryPath = (gs: GameState, et: string | null): string => {
   if (gs === 'vocabulaireMenu') return `${BASE}/francais/vocabulaire`;
   if (gs === 'phraseMenu') return `${BASE}/francais/phrase`;
   if (gs === 'adverbesMenu') return `${BASE}/francais/adverbes`;
+  if (gs === 'geometrieMenu') return `${BASE}/maths/geometrie`;
   if (gs === 'playing') return `${BASE}/playing/${et ?? ''}`;
   if (gs === 'summary') return `${BASE}/summary`;
   return `${BASE}/`;
@@ -30,6 +31,7 @@ const App: React.FC = () => {
   const [gameState, setGameState] = useState<GameState>('intro');
   const [lastScore, setLastScore] = useState(0);
   const [timerDuration, setTimerDuration] = useState(4);
+  const [autoValidateDelay, setAutoValidateDelay] = useState(1);
   const [selectedTables, setSelectedTables] = useState<number[]>([]);
   const [additionMax, setAdditionMax] = useState<number>(10);
   const [totalQuestions, setTotalQuestions] = useState(5);
@@ -657,6 +659,56 @@ const App: React.FC = () => {
     );
   }
 
+  if (gameState === 'geometrieMenu') {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-50 p-4 sm:p-8">
+        <div className="max-w-2xl mx-auto">
+          <div className="flex items-center gap-4 mb-8">
+            <button
+              onClick={() => setGameState('intro')}
+              className="text-amber-600 hover:text-amber-800 font-bold text-lg"
+            >
+              ← Retour
+            </button>
+            <h1 className="text-3xl sm:text-4xl font-title text-gray-800">Géométrie 📐</h1>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:gap-6">
+            <button
+              onClick={() => startExercise('maths', 'shape-id')}
+              className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px]"
+            >
+              <div className="flex justify-between items-start">
+                <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Qui est-ce ?</h3>
+                <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">🔷</span>
+              </div>
+              <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Reconnais la forme géométrique</p>
+            </button>
+            <button
+              onClick={() => startExercise('maths', 'perimeter')}
+              className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px]"
+            >
+              <div className="flex justify-between items-start">
+                <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Calcule un périmètre</h3>
+                <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">📏</span>
+              </div>
+              <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Dimensions affichées sur la forme</p>
+            </button>
+            <button
+              onClick={() => startExercise('maths', 'parallel')}
+              className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[120px]"
+            >
+              <div className="flex justify-between items-start">
+                <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Parallèle ou perpendiculaire ?</h3>
+                <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">✏️</span>
+              </div>
+              <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Identifie la relation entre deux droites</p>
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (gameState === 'playing' && subject && exerciseType) {
     const parentSection = sectionFromType(exerciseType);
     return (
@@ -703,6 +755,7 @@ const App: React.FC = () => {
           selectedTables={selectedTables}
           additionMax={additionMax}
           totalQuestions={totalQuestions}
+          autoValidateDelay={autoValidateDelay * 1000}
           onFinish={handleFinish}
         />
       </div>
@@ -772,6 +825,33 @@ const App: React.FC = () => {
               value={timerDuration}
               onChange={(e) => setTimerDuration(parseInt(e.target.value) || 4)}
               className="hidden sm:block w-full sm:w-16 text-center text-lg sm:text-xl font-bold text-indigo-600 focus:outline-none"
+            />
+          </div>
+          <div className="bg-white px-4 py-2 sm:px-6 sm:py-3 rounded-2xl shadow-sm border-2 border-amber-100 flex flex-col items-center flex-1 sm:flex-none" title="Validation auto des calculs après N secondes d'inactivité (0 = désactivé)">
+            <span className="text-gray-400 font-bold uppercase text-[9px] sm:text-[10px] block leading-tight">Auto-valid. (s)</span>
+            <div className="relative block sm:hidden w-full">
+              <select
+                value={autoValidateDelay}
+                onChange={(e) => setAutoValidateDelay(parseInt(e.target.value))}
+                className="w-full appearance-none bg-amber-50 border-2 border-amber-200 text-amber-700 font-bold py-2 px-4 pr-8 rounded-xl focus:outline-none focus:border-amber-500 text-center text-lg"
+              >
+                {[0, 1, 2, 3, 4, 5].map(v => (
+                  <option key={v} value={v}>{v === 0 ? 'OFF' : `${v}s`}</option>
+                ))}
+              </select>
+              <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center px-2 text-amber-600">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
+              </div>
+            </div>
+            <input
+              type="number"
+              min="0"
+              max="10"
+              value={autoValidateDelay}
+              onChange={(e) => setAutoValidateDelay(Math.max(0, parseInt(e.target.value) || 0))}
+              className="hidden sm:block w-full sm:w-16 text-center text-lg sm:text-xl font-bold text-amber-600 focus:outline-none"
             />
           </div>
           <div className="bg-white px-4 py-2 sm:px-6 sm:py-3 rounded-2xl shadow-sm border-2 border-indigo-100 flex flex-col items-center flex-1 sm:flex-none">
@@ -917,6 +997,26 @@ const App: React.FC = () => {
                 <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Réflexion</p>
               </button>
             </div>
+            <button
+              onClick={() => startExercise('maths', 'numberline')}
+              className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[100px] sm:min-h-[140px] w-full"
+            >
+              <div className="flex justify-between items-start">
+                <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Droite graduée</h3>
+                <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">📏</span>
+              </div>
+              <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Place un nombre sur la droite</p>
+            </button>
+            <button
+              onClick={() => setGameState('geometrieMenu')}
+              className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[100px] sm:min-h-[140px] w-full"
+            >
+              <div className="flex justify-between items-start">
+                <h3 className="font-bold text-amber-700 text-xl sm:text-2xl">Géométrie</h3>
+                <span className="text-2xl sm:text-3xl group-hover:scale-125 transition-transform">📐</span>
+              </div>
+              <p className="text-sm sm:text-lg text-amber-600/70 font-medium">Formes, périmètres, droites</p>
+            </button>
             <button
               onClick={() => startExercise('maths', 'ordering')}
               className="p-6 sm:p-10 rounded-3xl bg-amber-50 border-4 border-amber-100 hover:border-amber-400 hover:bg-amber-100 transition-all text-left group shadow-lg flex flex-col justify-between min-h-[100px] sm:min-h-[140px] w-full"

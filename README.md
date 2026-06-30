@@ -1,65 +1,210 @@
 
 # LudoÉduc 🚀 — L'Aventure des Savoirs
 
-Bienvenue sur **LudoÉduc**, l'application interactive conçue pour transformer l'apprentissage du **Français** et des **Mathématiques** en un véritable jeu d'enfant ! 
+> *"Apprendre, c'est bien. Apprendre en s'amusant, c'est mieux !"* 🎉
 
-Destinée aux élèves du **CE1 au CM2**, cette plateforme offre un environnement coloré, stimulant et totalement gratuit pour progresser à son rythme.
+Bienvenue sur **LudoÉduc**, l'application interactive qui transforme les devoirs en aventure ! Du **Français** aux **Maths** en passant par la **Découverte**, tout est là pour devenir le champion de la classe. 🏆
 
----
-
-## 🌟 Points Forts
-
-- **Interface Ludique :** Des polices rondes (Fredoka One), des couleurs vives et des animations pour garder l'enfant motivé.
-- **Dictée Locale :** Utilise la technologie **Web Speech API** intégrée à votre navigateur pour lire les phrases. Aucun besoin de connexion internet ou de clé API payante !
-- **Encouragements constants :** Chaque réussite déclenche un message aléatoire (ex: "Tu es un champion ! 🏆") pour booster la confiance en soi.
-- **Droit à l'erreur :** L'enfant dispose de 3 essais pour trouver la bonne réponse, avec un message d'encouragement pour l'aider à persévérer.
-- **Drag & Drop :** Glisser-déposer intuitif pour les exercices de tri et d'ordre croissant/décroissant (compatible mobile/tablette).
-- **Totalement Responsive :** Apprenez sur ordinateur, tablette ou smartphone avec un confort optimal.
-- **Soutien au projet :** Vous aimez l'app ? Vous pouvez offrir un hot-dog au développeur via le bouton en bas de page ! 🌭
+Destinée aux élèves du **CE1 au CM2**, 100% gratuite, 100% fun, 0% ennuyeux.
 
 ---
 
-## 📚 Au programme
+## ⚡ Points Forts
 
-### 🇫🇷 Français
-1. **Structure de la phrase :** Apprendre à identifier les noms, verbes, déterminants et adjectifs en les coloriant de manière interactive.
-2. **Défi Conjugaison :** Maîtriser le Présent, Futur, Imparfait et Passé Composé sur plus de 30 verbes essentiels.
-3. **Dictée Interactive :** Écouter la voix du navigateur et écrire la phrase sans fautes (plus de 200 phrases disponibles).
-
-### 🔢 Mathématiques
-1. **Calcul Mental :** Additions personnalisables et Tables de multiplication avec un système de chronomètre ajustable (saisie libre sur PC, menu déroulant optimisé sur mobile).
-2. **Décomposition (M-C-D-U) :** Un outil visuel unique avec tableau de numération et somme décomposée pour bien comprendre les milliers, centaines, dizaines et unités.
-3. **Logique & Classement :** Ranger les nombres dans l'ordre croissant et compléter des suites logiques via un système de **Drag & Drop** intuitif.
-4. **Problèmes de Réflexion :** Plus de 80 situations concrètes et variées pour apprendre à raisonner.
-
-### 🧭 Découverte (Nouveau !)
-1. **Apprentissage de l'heure :** Une horloge analogique interactive pour apprendre à lire et régler l'heure.
-   - **Mode Lecture :** Identifier l'heure affichée (avec indicateur Matin 🌅 / Après-midi 🌇).
-   - **Mode Réglage :** Manipuler les aiguilles (Rose pour les heures, Bleue pour les minutes) pour atteindre l'heure demandée.
-   - **Difficulté Adaptative :** Heures et demies pour les plus jeunes, minutes précises pour les plus grands.
+| 🎮 | Ce qui rend LudoÉduc génial |
+|---|---|
+| 🎨 | **Interface colorée** avec des animations qui donnent envie de jouer |
+| 🎙️ | **Dictée vocale locale** via la Web Speech API — pas de compte, pas de connexion requise |
+| 🏅 | **Encouragements automatiques** après chaque bonne réponse ("Tu déchires ! 🔥") |
+| 💪 | **3 essais par question** — le droit à l'erreur, c'est sacré |
+| 👆 | **Drag & Drop** pour les exercices de tri et de classement (marche aussi sur tablette !) |
+| 📱 | **100% responsive** — ordi, tablette ou téléphone, LudoÉduc s'adapte |
+| 🔁 | **Bouton retour navigateur** fonctionnel — on peut naviguer librement |
 
 ---
 
-## 🛠️ Côté Technique
+## 📚 Tous les exercices
 
-L'application utilise les technologies web les plus modernes :
-- **React 19** pour une interface ultra-réactive.
-- **Tailwind CSS** pour un design moderne, "pixel-perfect" et adaptatif.
-- **Web Speech API** : Synthèse vocale native pour une expérience fluide et locale.
-- **Dnd-kit** : Pour une gestion fluide et performante du glisser-déposer.
-- **TypeScript** pour une stabilité maximale du programme.
+### 🇫🇷 Français — 40+ types d'exercices
+
+<details>
+<summary><b>📜 La Phrase (5 exercices)</b></summary>
+
+| Exercice | Description |
+|---|---|
+| 🖍️ **Nature des mots** | Identifie les classes grammaticales (nom, verbe, déterminant, adjectif…) en coloriant la phrase |
+| ❓ **Type de phrase** | Déclarative, impérative ou interrogative ? |
+| 🔚 **Ponctuation** | Complète avec le bon signe : `.` `?` `!` |
+| 🔀 **Ordre des mots** | Remets les mots dans le bon ordre pour former une phrase correcte |
+| ✅ **Phrase correcte ?** | Identifie les phrases bien formées parmi les propositions |
+
+</details>
+
+<details>
+<summary><b>✍️ Conjugaison (1 exercice)</b></summary>
+
+| Exercice | Description |
+|---|---|
+| ✍️ **Défi Conjugaison** | Conjugue les verbes au **présent**, **futur**, **imparfait** et **passé composé** sur + de 30 verbes essentiels |
+
+</details>
+
+<details>
+<summary><b>📝 Dictée (2 exercices)</b></summary>
+
+| Exercice | Description |
+|---|---|
+| 🎧 **Dictée interactive** | Écoute la voix du navigateur et écris la phrase sans fautes (200+ phrases) |
+| 📝 **Dictée à trous** | Complète les phrases avec le mot manquant |
+
+</details>
+
+<details>
+<summary><b>🏷️ Les Noms (8 exercices)</b></summary>
+
+| Exercice | Description |
+|---|---|
+| 🏷️ **Trier les noms** | Nom commun ou nom propre ? |
+| 🔍 **Identifier les noms** | Repère les noms dans une liste de mots |
+| **Pluriel — cas classique** 📝 | Ajouter un **-s** |
+| **Pluriel — en -eau / -au** 🎂 | Ajouter un **-x** (gâteaux, chevaux…) |
+| **Pluriel — en -ou** 🦉 | Les 7 exceptions (bijou, caillou, genou…) |
+| **Pluriel — en -ail** ⚙️ | travail → travaux, corail → coraux… |
+| ⚥ **Masculin → Féminin** | 6 règles : -ien, -eur, -ier, -on/-ion, -ain, ajouter -e |
+
+</details>
+
+<details>
+<summary><b>✍️ Les Verbes (5 exercices)</b></summary>
+
+| Exercice | Description |
+|---|---|
+| 🔍 **Identifier les verbes** | Repère les verbes dans une liste de mots |
+| ❓ **Conjugué ou infinitif ?** | Ce verbe est-il conjugué ou à l'infinitif ? |
+| 📌 **Donner l'infinitif** | Retrouve l'infinitif d'un verbe conjugué |
+| ⏰ **Passé, présent ou futur ?** | Identifie le temps d'une phrase |
+| ✏️ **Conjuguer un verbe** | 1er groupe + être/avoir (CE1) · tous les verbes du niveau (CE2+) |
+
+</details>
+
+<details>
+<summary><b>🔤 Adverbes — CE2, CM1, CM2 (3 exercices)</b></summary>
+
+| Exercice | Description |
+|---|---|
+| 🔍 **Identifier les adverbes** | Repère les adverbes dans une liste de mots |
+| ➡️ **Adjectif → Adverbe** | Transforme un adjectif en adverbe (-ment) |
+| ⬅️ **Adverbe → Adjectif** | Retrouve l'adjectif à partir de l'adverbe |
+
+</details>
+
+<details>
+<summary><b>📌 Les Déterminants (6 exercices)</b></summary>
+
+| Exercice | Description |
+|---|---|
+| 🔍 **Identifier les déterminants** | Repère les déterminants dans une liste de mots |
+| 🔵 **Genre du déterminant** | Masculin ou féminin ? |
+| 🔢 **Nombre du déterminant** | Singulier ou pluriel ? |
+| ✏️ **Écrire un déterminant** | Écris un déterminant devant ce nom |
+| ✅ **Choisir les déterminants** | Sélectionne tous ceux qui conviennent |
+| 📚 **Articles définis / indéfinis** | Trier *le, la, les, l'* vs *un, une, des* — CE2, CM1, CM2 |
+
+</details>
+
+<details>
+<summary><b>✏️ Orthographe (6 exercices)</b></summary>
+
+| Exercice | Description |
+|---|---|
+| 🔇 **Lettre muette** | Trouve la lettre muette grâce au mot de la famille |
+| 🐍 **s ou ss ?** | *poisson* ou *poison* ? |
+| 📝 **n ou m ?** | m devant m, b, p — règle incontournable ! |
+| 🔤 **c ou ç ?** | *garçon* vs *école* |
+| 🔡 **g ou ge ?** | *nageoire* vs *girafe* |
+| 🎵 **g ou gu ?** | *guitare* vs *galère* |
+
+</details>
+
+<details>
+<summary><b>🔤 Vocabulaire (6 exercices)</b></summary>
+
+| Exercice | Description |
+|---|---|
+| 🔤 **Ordre alphabétique (lettres)** | Range des lettres de A à Z |
+| 📋 **Ordre alphabétique (mots)** | Range des mots dans l'ordre du dictionnaire |
+| 🔗 **Synonymes** | Identifie les synonymes d'un mot parmi une liste |
+| 🔎 **L'intrus** | Trouve le seul mot qui n'est PAS synonyme |
+| ↔️ **Contraires** | Identifie le contraire d'un mot parmi 4 choix |
+| 🌳 **Famille de mots** | Clique sur tous les mots de la même famille |
+
+</details>
 
 ---
 
-## 🚀 Comment ça marche ?
+### 🔢 Mathématiques — 5 types d'exercices
 
-1. **Choisis ton niveau :** CE1, CE2, CM1 ou CM2.
-2. **Sélectionne une matière :** Clique sur une tuile géante en Français, en Maths ou en Découverte.
-3. **Configure ton défi :** Choisis le nombre de questions et règle le chrono pour le calcul mental.
-4. **Apprends et gagne :** Cumule les réussites et admire tes scores !
+| Exercice | Description |
+|---|---|
+| ✖️ **Tables de multiplication** | Choisis tes tables (1 à 10), règle le chrono et c'est parti ! |
+| ➕ **Additions** | Calcul mental avec des nombres de 0 à 10 ou 0 à 20 |
+| 📦 **Décomposition M-C-D-U** | Milliers, Centaines, Dizaines, Unités — le tableau de numération interactif |
+| 🔢 **Classement numérique** | Range les nombres en ordre croissant ou décroissant par **Drag & Drop** |
+| 🤔 **Problèmes** | 80+ situations concrètes pour apprendre à raisonner et à calculer |
 
 ---
 
-Ce projet est opensource alors n'hesitez pas à contribuer dans les exercices !
+### 🚀 Découverte — 1 exercice
 
-*LudoÉduc — Parce que chaque enfant est un génie qui s'ignore !* ✨
+| Exercice | Description |
+|---|---|
+| ⏰ **L'Heure** | Horloge analogique interactive pour **lire** l'heure affichée ou **régler** les aiguilles à une heure donnée. Adaptatif : quarts d'heure pour les petits, minutes précises pour les grands |
+
+---
+
+## 🛠️ Stack Technique
+
+```
+React 19        — Interface ultra-réactive
+TypeScript      — Code robuste et sans surprises
+Vite 6          — Démarrage en < 1 seconde
+Tailwind CSS    — Design pixel-perfect et responsive
+dnd-kit         — Drag & Drop fluide (souris + tactile)
+Web Speech API  — Synthèse vocale 100% locale (dictée)
+```
+
+---
+
+## 🚀 Lancer le projet
+
+```bash
+npm install
+npm run dev
+# → http://localhost:3000/ludoeduc/
+```
+
+---
+
+## 🎮 Comment jouer ?
+
+```
+1. 🎓 Choisis ton niveau       →  CE1 · CE2 · CM1 · CM2
+2. 📚 Sélectionne une matière  →  Français · Maths · Découverte
+3. ⚙️  Configure ton défi       →  Nombre de questions, chrono, tables…
+4. 🏆 Joue et progresse !      →  Cumule les bonnes réponses !
+```
+
+---
+
+## 🤝 Contribuer
+
+Ce projet est **open source** ! Tu veux ajouter des exercices, corriger une question ou proposer une nouvelle feature ?
+
+> 👉 **Fork → Code → Pull Request** — toutes les contributions sont les bienvenues !
+
+Les bases de données d'exercices se trouvent dans le dossier `database/` — facile à enrichir !
+
+---
+
+*LudoÉduc — Parce que chaque enfant est un génie qui s'ignore !* ✨  
+*Développé avec ❤️ par un papa passionné*
